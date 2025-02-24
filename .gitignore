@@ -1,6 +1,7 @@
 .law/
 plots/
 uname_to_sys_map.json
+.law/
 
 ##########################################
 # from python template
