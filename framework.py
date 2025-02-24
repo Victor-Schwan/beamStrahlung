@@ -19,7 +19,7 @@ import law
 # so we need to explicitly load it
 law.contrib.load("htcondor")
 
-data_dir_path_env_var = "$dtDir"
+data_dir_path_env_var = "dtDir"
 
 class Task(law.Task):
     """
@@ -30,15 +30,19 @@ class Task(law.Task):
     version = luigi.Parameter()
 
     def store_parts(self):
-        return (self.__class__.__name__, self.version)
+        parts = (self.__class__.__name__,)
+        if self.version is not None:
+            parts += (self.version,)
+        return parts
 
     def local_path(self, *path):
         # DATA_PATH is defined in setup.sh
-        parts = (data_dir_path_env_var,) + self.store_parts() + path
-        return os.path.join(*parts)
+        parts = [str(p) for p in self.store_parts() + path]
+        return os.path.join(os.environ[data_dir_path_env_var], *parts)
 
-    def local_target(self, *path):
-        return law.LocalFileTarget(self.local_path(*path))
+    def local_target(self, *args):
+        cls = law.LocalFileTarget if args else law.LocalDirectoryTarget
+        return cls(self.local_args(*args))
 
 
 class HTCondorWorkflow(law.htcondor.HTCondorWorkflow):
