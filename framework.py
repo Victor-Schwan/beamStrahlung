@@ -8,7 +8,6 @@ other tasks to receive the same features. This is usually called "framework"
 and only needs to be defined once per user / group / etc.
 """
 
-
 import os
 
 import luigi
@@ -21,7 +20,8 @@ law.contrib.load("htcondor")
 
 data_dir_path_env_var = "dtDir"
 
-class Task(law.Task):
+
+class BaseTask(law.Task):
     """
     Base task that we use to force a version parameter on all inheriting tasks, and that provides
     some convenience methods to create local file and directory targets at the default data path.
@@ -42,7 +42,7 @@ class Task(law.Task):
 
     def local_target(self, *args):
         cls = law.LocalFileTarget if args else law.LocalDirectoryTarget
-        return cls(self.local_args(*args))
+        return cls(self.local_path(*args))
 
 
 class HTCondorWorkflow(law.htcondor.HTCondorWorkflow):
@@ -68,7 +68,7 @@ class HTCondorWorkflow(law.htcondor.HTCondorWorkflow):
     def htcondor_bootstrap_file(self):
         # each job can define a bootstrap file that is executed prior to the actual job
         # configure it to be shared across jobs and rendered as part of the job itself
-        bootstrap_file = law.util.rel_path(__file__, "bootstrap.sh")
+        bootstrap_file = law.util.rel_path(__file__, "law_bootstrap.sh")
         return law.JobInputFile(bootstrap_file, share=True, render_job=True)
 
     def htcondor_job_config(self, config, job_num, branches):
@@ -79,3 +79,14 @@ class HTCondorWorkflow(law.htcondor.HTCondorWorkflow):
         config.custom_content.append(("getenv", "true"))
 
         return config
+
+
+class AnalysisTask(BaseTask):
+    detector_model = luigi.Parameter(default="ILD_l5_v02")
+    scenario = luigi.Parameter(default="ILC250")
+
+    def store_parts(self):
+        return super().store_parts() + (
+            f"det_mod_{self.detector_model}",
+            f"scenario_{self.scenario}",
+        )

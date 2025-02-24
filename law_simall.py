@@ -4,31 +4,17 @@ from pathlib import Path
 import law
 import luigi
 
+from framework import AnalysisTask
 
-class SimulateEvents(law.Task):
-    version_name = luigi.Parameter()
-    detector_model = luigi.Parameter(default='ILD_l5_v02')
-    scenario = luigi.Parameter(default='ILC250')
+
+class SimulateEvents(AnalysisTask):
     bunch_crossing_end = luigi.IntParameter(default=2)
-    n_events = luigi.IntParameter(default= 10)
+    n_events = luigi.IntParameter(default=10)
     guinea_pig_part_per_e = luigi.IntParameter(default=-1)
     submit_jobs = luigi.BoolParameter(default=False)
 
     def output(self):
-        out_dir = (
-            Path.home()
-            / "promotion"
-            / "data"
-            / "SIM_DATA_SUBDIR_NAME"
-            / self.version_name
-        )
-        out_dir.mkdir(parents=True, exist_ok=True)
-        return law.LocalFileTarget(
-            str(
-                out_dir
-                / f"{self.detector_model}-{self.scenario}-bX_{self.bunch_crossing_end:04d}-nEvts_{self.n_events}.edm4hep.root"
-            )
-        )
+        return self.local_target()
 
     def run(self):
         executable = "ddsim"
