@@ -19,6 +19,7 @@ import law
 # so we need to explicitly load it
 law.contrib.load("htcondor")
 
+data_dir_path_env_var = "$dtDir"
 
 class Task(law.Task):
     """
@@ -33,7 +34,7 @@ class Task(law.Task):
 
     def local_path(self, *path):
         # DATA_PATH is defined in setup.sh
-        parts = ("$DATA_PATH",) + self.store_parts() + path
+        parts = (data_dir_path_env_var,) + self.store_parts() + path
         return os.path.join(*parts)
 
     def local_target(self, *path):
