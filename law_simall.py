@@ -1,10 +1,21 @@
 import subprocess
+from os import fspath
 from pathlib import Path
 
 import law
 import luigi
 
+from det_mod_configs import get_paths_and_detector_configs
 from framework import AnalysisTask
+from platform_paths import (
+    code_dir,
+    construct_beamstrahlung_paths,
+    desy_dust_home_path,
+    get_path_for_current_machine,
+)
+from simall import replace_BX_number_in_string
+
+bs_data_paths = construct_beamstrahlung_paths(desy_dust_home_path, True)
 
 
 class SimulateEvents(AnalysisTask):
@@ -13,23 +24,30 @@ class SimulateEvents(AnalysisTask):
     guinea_pig_part_per_e = luigi.IntParameter(default=-1)
     submit_jobs = luigi.BoolParameter(default=False)
 
+    bunchcrossing = 1
+    bs_dir = code_dir / "beamStrahlung"
+
     def output(self):
-        return self.local_target()
+        return self.local_target("sim_data.edm4hep.root")
 
     def run(self):
         executable = "ddsim"
-        arguments = [
+        det_mod_config = get_paths_and_detector_configs()[self.detector_model]
+        raw_arguments = [
             "--steeringFile",
-            "beamStrahlung/ddsim_keep_microcurlers_10MeV.py",
+            self.bs_dir / "ddsim_keep_microcurlers_10MeV.py",
             "--compactFile",
-            f"k4geo/{self.detector_model}.xml",
+            code_dir / f"k4geo/{det_mod_config.get_compact_file_path()}",
             "--inputFile",
-            f"beamstrahlung/{self.scenario}-BX_{self.bunch_crossing_end}.dat",
+            replace_BX_number_in_string(self.scenario, self.bunchcrossing),
             "--outputFile",
             self.output().path,
             "--numberOfEvents",
             str(self.n_events),
+            "--crossingAngleBoost",
+            str(det_mod_config.get_crossing_angle()),
         ]
+        arguments = [fspath(i) if isinstance(i, Path) else i for i in raw_arguments]
         if self.submit_jobs:
             subprocess.run([executable] + arguments, check=True)
         else:

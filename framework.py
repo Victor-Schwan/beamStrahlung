@@ -10,9 +10,10 @@ and only needs to be defined once per user / group / etc.
 
 import os
 
-import luigi
 import law
+import luigi
 
+from platform_paths import construct_beamstrahlung_paths, desy_dust_home_path
 
 # the htcondor workflow implementation is part of a law contrib package
 # so we need to explicitly load it
@@ -81,9 +82,20 @@ class HTCondorWorkflow(law.htcondor.HTCondorWorkflow):
         return config
 
 
+bs_data_paths = construct_beamstrahlung_paths(desy_dust_home_path, True)
+
+# single source of truth, keys of bs_data_paths become values of tuple
+CHOICES_SCENARIOS = tuple(bs_data_paths)
+DEFAULT_SCENARIOS = "ILC250"
+
+
 class AnalysisTask(BaseTask):
     detector_model = luigi.Parameter(default="ILD_l5_v02")
-    scenario = luigi.Parameter(default="ILC250")
+    scenario = luigi.ChoiceParameter(
+        choices=CHOICES_SCENARIOS,
+        default=DEFAULT_SCENARIOS,
+        description="Accelerator configurations to analyze (choose one or more)",
+    )
 
     def store_parts(self):
         return super().store_parts() + (
