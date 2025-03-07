@@ -86,11 +86,11 @@ bs_data_paths = construct_beamstrahlung_paths(desy_dust_home_path, True)
 
 # single source of truth, keys of bs_data_paths become values of tuple
 CHOICES_SCENARIOS = tuple(bs_data_paths)
-DEFAULT_SCENARIOS = "ILC250"
+DEFAULT_SCENARIOS = "FCC091"
 
 
 class AnalysisTask(BaseTask):
-    detector_model = luigi.Parameter(default="ILD_l5_v02")
+    detector_model = luigi.Parameter(default="ILD_FCCee_v01")
     scenario = luigi.ChoiceParameter(
         choices=CHOICES_SCENARIOS,
         default=DEFAULT_SCENARIOS,
