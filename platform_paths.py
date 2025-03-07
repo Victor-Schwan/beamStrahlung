@@ -15,7 +15,7 @@ DESY_NAF_MACHINE_IDENTIFIER = "desy-naf"
 SPECTRE_MACHINE_IDENTIFIER = "spectre"
 
 SIM_DATA_SUBDIR_NAME = "sim"
-MY_CODE_DIR_ENV_VAR_NAME = "myCodeDir"
+MY_CODE_DIR_ENV_VAR_NAME = "codeDir"
 
 if not getenv(MY_CODE_DIR_ENV_VAR_NAME):
     raise EnvironmentError(
