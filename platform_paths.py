@@ -78,7 +78,7 @@ def identify_system() -> str:
 
 
 desy_dust_home_path = (
-    Path("/data/dust/user/") / getenv("USER")
+    Path(getenv("nfsUser")) / getenv("USER")
     if identify_system() == DESY_NAF_MACHINE_IDENTIFIER
     else None
 )
