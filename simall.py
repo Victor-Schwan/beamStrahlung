@@ -7,13 +7,13 @@ from det_mod_configs import (
     get_paths_and_detector_configs,
 )
 from platform_paths import (
+    DESY_NAF_MACHINE_IDENTIFIER,
+    SIM_DATA_SUBDIR_NAME,
     code_dir,
     construct_beamstrahlung_paths,
     desy_dust_home_path,
-    DESY_NAF_MACHINE_IDENTIFIER,
     get_path_for_current_machine,
     identify_system,
-    SIM_DATA_SUBDIR_NAME,
 )
 from submit_utils_4_simall import submit_job
 

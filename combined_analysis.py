@@ -11,9 +11,9 @@ from det_mod_configs import (
     DEFAULT_DETECTOR_MODELS,
 )
 from platform_paths import (
+    SIM_DATA_SUBDIR_NAME,
     get_home_directory,
     resolve_path_with_env,
-    SIM_DATA_SUBDIR_NAME,
 )
 from plotting import plotting
 from simall import CHOICES_SCENARIOS, DEFAULT_SCENARIOS
