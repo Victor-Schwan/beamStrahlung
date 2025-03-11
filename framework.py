@@ -13,6 +13,10 @@ import os
 import law
 import luigi
 
+from det_mod_configs import (
+    CHOICES_DETECTOR_MODELS,
+    DEFAULT_DETECTOR_MODELS,
+)
 from platform_paths import construct_beamstrahlung_paths, desy_dust_home_path
 
 # the htcondor workflow implementation is part of a law contrib package
@@ -45,6 +49,8 @@ class BaseTask(law.Task):
         cls = law.LocalFileTarget if args else law.LocalDirectoryTarget
         return cls(self.local_path(*args))
 
+    def list2str(self, list_name):
+        return ''.join([f'_{ele}' for ele in getattr(self,list_name)])
 
 class HTCondorWorkflow(law.htcondor.HTCondorWorkflow):
     """
@@ -86,12 +92,15 @@ bs_data_paths = construct_beamstrahlung_paths(desy_dust_home_path, True)
 
 # single source of truth, keys of bs_data_paths become values of tuple
 CHOICES_SCENARIOS = tuple(bs_data_paths)
-DEFAULT_SCENARIOS = "FCC091"
+DEFAULT_SCENARIOS = ["FCC091"]
+
 
 
 class AnalysisTask(BaseTask):
-    detector_model = luigi.Parameter(default="ILD_FCCee_v01")
-    scenario = luigi.ChoiceParameter(
+    detector_models = luigi.ChoiceListParameter(
+        default=["ILD_FCCee_v02"], choices=CHOICES_DETECTOR_MODELS
+    )
+    scenario = luigi.ChoiceListParameter(
         choices=CHOICES_SCENARIOS,
         default=DEFAULT_SCENARIOS,
         description="Accelerator configurations to analyze (choose one or more)",
@@ -99,6 +108,6 @@ class AnalysisTask(BaseTask):
 
     def store_parts(self):
         return super().store_parts() + (
-            f"det_mod_{self.detector_model}",
-            f"scenario_{self.scenario}",
+            f"det_mod{self.list2str('detector_models')}",
+            f"scenario{self.list2str('scenario')}",
         )
