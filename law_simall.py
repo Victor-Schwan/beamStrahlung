@@ -6,7 +6,7 @@ import law
 import luigi
 
 from det_mod_configs import get_paths_and_detector_configs
-from framework import AnalysisTask, HTCondorWorkflow
+from framework import HTCondorWorkflow, TestAT
 from platform_paths import (
     code_dir,
     construct_beamstrahlung_paths,
@@ -18,7 +18,7 @@ from simall import replace_BX_number_in_string
 bs_data_paths = construct_beamstrahlung_paths(desy_dust_home_path, True)
 
 
-class SimulateEvents(AnalysisTask, HTCondorWorkflow):
+class SimulateEvents(TestAT, HTCondorWorkflow):
     bunch_crossing_end = luigi.IntParameter(default=2)
     n_events = luigi.IntParameter(default=10)
     guinea_pig_part_per_e = luigi.IntParameter(default=-1)

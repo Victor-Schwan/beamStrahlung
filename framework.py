@@ -96,18 +96,22 @@ DEFAULT_SCENARIOS = ["FCC091"]
 
 
 
-class AnalysisTask(BaseTask):
-    detector_models = luigi.ChoiceListParameter(
-        default=["ILD_FCCee_v02"], choices=CHOICES_DETECTOR_MODELS
-    )
-    scenario = luigi.ChoiceListParameter(
-        choices=CHOICES_SCENARIOS,
-        default=DEFAULT_SCENARIOS,
-        description="Accelerator configurations to analyze (choose one or more)",
-    )
+#class AnalysisTask(BaseTask):
+#    detector_models = luigi.ChoiceListParameter(
+#        default=["ILD_FCCee_v02"], choices=CHOICES_DETECTOR_MODELS
+#    )
+#    scenario = luigi.ChoiceListParameter(
+#        choices=CHOICES_SCENARIOS,
+#        default=DEFAULT_SCENARIOS,
+#        description="Accelerator configurations to analyze (choose one or more)",
+#    )
+#
+#    def store_parts(self):
+#        return super().store_parts() + (
+#            f"det_mod{self.list2str('detector_models')}",
+#            f"scenario{self.list2str('scenario')}",
+#        )
 
-    def store_parts(self):
-        return super().store_parts() + (
-            f"det_mod{self.list2str('detector_models')}",
-            f"scenario{self.list2str('scenario')}",
-        )
+class TestAT(BaseTask):
+    detector_models = luigi.Parameter(default="ILD_FCCee_v02")
+    scenario = luigi.Parameter(default="FCC091")
