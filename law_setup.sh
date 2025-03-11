@@ -1,4 +1,4 @@
-bsDir=${codeDir}/beamStrahlung
+# incorporate in $OC/my.env.sh
 export LAW_HOME=${bsDir}/.law
 export LAW_CONFIG_FILE=${bsDir}/.law
 
