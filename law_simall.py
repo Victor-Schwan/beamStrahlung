@@ -6,7 +6,7 @@ import law
 import luigi
 
 from det_mod_configs import get_paths_and_detector_configs
-from framework import AnalysisTask
+from framework import AnalysisTask, HTCondorWorkflow
 from platform_paths import (
     code_dir,
     construct_beamstrahlung_paths,
@@ -18,7 +18,7 @@ from simall import replace_BX_number_in_string
 bs_data_paths = construct_beamstrahlung_paths(desy_dust_home_path, True)
 
 
-class SimulateEvents(AnalysisTask):
+class SimulateEvents(AnalysisTask, HTCondorWorkflow):
     bunch_crossing_end = luigi.IntParameter(default=2)
     n_events = luigi.IntParameter(default=10)
     guinea_pig_part_per_e = luigi.IntParameter(default=-1)
@@ -27,12 +27,17 @@ class SimulateEvents(AnalysisTask):
     bunchcrossing = 1
     bs_dir = code_dir / "beamStrahlung"
 
+    def create_branch_map(self):
+        return {i: model for i, model in enumerate(self.detector_models)}
+
     def output(self):
-        return self.local_target("sim_data.edm4hep.root")
+        return self.local_target(f"sim_data_{self.branch}.edm4hep.root")
 
     def run(self):
+        self.output().touch()
+
         executable = "ddsim"
-        det_mod_config = get_paths_and_detector_configs()[self.detector_model]
+        det_mod_config = get_paths_and_detector_configs()[self.branch_data]
         raw_arguments = [
             "--steeringFile",
             self.bs_dir / "ddsim_keep_microcurlers_10MeV.py",
