@@ -28,7 +28,12 @@ class SimulateEvents(TestAT, HTCondorWorkflow):
     bs_dir = code_dir / "beamStrahlung"
 
     def create_branch_map(self):
-        return {i: model for i, model in enumerate(self.detector_models)}
+        if isinstance(self.detector_models, list):
+            return {i: model for i, model in enumerate(self.detector_models)}
+        elif isinstance(self.detector_models, str):
+            return {0: self.detector_models}
+        else:
+            raise ValueError
 
     def output(self):
         return self.local_target(f"sim_data_{self.branch}.edm4hep.root")
