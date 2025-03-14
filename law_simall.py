@@ -6,7 +6,7 @@ import law
 import luigi
 
 from det_mod_configs import get_paths_and_detector_configs
-from framework import HTCondorWorkflow, TestAT
+from framework import AnalysisTask, HTCondorWorkflow
 from platform_paths import (
     code_dir,
     construct_beamstrahlung_paths,
@@ -18,7 +18,7 @@ from simall import replace_BX_number_in_string
 bs_data_paths = construct_beamstrahlung_paths(desy_dust_home_path, True)
 
 
-class SimulateEvents(TestAT, HTCondorWorkflow):
+class SimulateEvents(AnalysisTask, HTCondorWorkflow, law.LocalWorkflow):
     bunch_crossing_end = luigi.IntParameter(default=2)
     n_events = luigi.IntParameter(default=10)
     guinea_pig_part_per_e = luigi.IntParameter(default=-1)
@@ -28,28 +28,33 @@ class SimulateEvents(TestAT, HTCondorWorkflow):
     bs_dir = code_dir / "beamStrahlung"
 
     def create_branch_map(self):
-        if isinstance(self.detector_models, list):
-            return {i: model for i, model in enumerate(self.detector_models)}
-        elif isinstance(self.detector_models, str):
-            return {0: self.detector_models}
-        else:
-            raise ValueError
+        return {
+            i: combi
+            for i, combi in enumerate(
+                self.get_combinations(self.detector_models, self.scenario)
+            )
+        }
 
     def output(self):
-        return self.local_target(f"sim_data_{self.branch}.edm4hep.root")
+        det_mod = self.branch_data[0]
+        scenario = self.branch_data[1]
+        return self.local_target(f"sim_data_{det_mod}_{scenario}.edm4hep.root")
 
     def run(self):
         self.output().touch()
 
+        det_mod = self.branch_data[0]
+        scenario = self.branch_data[1]
+
         executable = "ddsim"
-        det_mod_config = get_paths_and_detector_configs()[self.branch_data]
+        det_mod_config = get_paths_and_detector_configs()[det_mod]
         raw_arguments = [
             "--steeringFile",
             self.bs_dir / "ddsim_keep_microcurlers_10MeV.py",
             "--compactFile",
             code_dir / f"k4geo/{det_mod_config.get_compact_file_path()}",
             "--inputFile",
-            replace_BX_number_in_string(self.scenario, self.bunchcrossing),
+            replace_BX_number_in_string(scenario, self.bunchcrossing),
             "--outputFile",
             self.output().path,
             "--numberOfEvents",

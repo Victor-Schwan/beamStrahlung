@@ -9,6 +9,8 @@ and only needs to be defined once per user / group / etc.
 """
 
 import os
+from itertools import product
+from typing import Iterable, List, Tuple, Union
 
 import law
 import luigi
@@ -50,7 +52,8 @@ class BaseTask(law.Task):
         return cls(self.local_path(*args))
 
     def list2str(self, list_name):
-        return ''.join([f'_{ele}' for ele in getattr(self,list_name)])
+        return "".join([f"_{ele}" for ele in getattr(self, list_name)])
+
 
 class HTCondorWorkflow(law.htcondor.HTCondorWorkflow):
     """
@@ -92,25 +95,53 @@ bs_data_paths = construct_beamstrahlung_paths(desy_dust_home_path, True)
 
 # single source of truth, keys of bs_data_paths become values of tuple
 CHOICES_SCENARIOS = tuple(bs_data_paths)
-DEFAULT_SCENARIOS = ["FCC091"]
+DEFAULT_SCENARIOS = ["FCC091", "FCC240"]
 
 
+class AnalysisTask(BaseTask):
+    detector_models = luigi.ChoiceListParameter(
+        default=["ILD_FCCee_v02", "ILD_FCCee_v01"], choices=CHOICES_DETECTOR_MODELS
+    )
+    scenario = luigi.ChoiceListParameter(
+        choices=CHOICES_SCENARIOS,
+        default=DEFAULT_SCENARIOS,
+        description="Accelerator configurations to analyze (choose one or more)",
+    )
 
-#class AnalysisTask(BaseTask):
-#    detector_models = luigi.ChoiceListParameter(
-#        default=["ILD_FCCee_v02"], choices=CHOICES_DETECTOR_MODELS
-#    )
-#    scenario = luigi.ChoiceListParameter(
-#        choices=CHOICES_SCENARIOS,
-#        default=DEFAULT_SCENARIOS,
-#        description="Accelerator configurations to analyze (choose one or more)",
-#    )
-#
-#    def store_parts(self):
-#        return super().store_parts() + (
-#            f"det_mod{self.list2str('detector_models')}",
-#            f"scenario{self.list2str('scenario')}",
-#        )
+    @staticmethod
+    def get_combinations(
+        collection_a: Union[str, Iterable[str]], collection_b: Union[str, Iterable[str]]
+    ) -> List[Tuple[str, str]]:
+        """
+        Generate all possible pairwise combinations of elements from two collections.
+
+        Both inputs can be either a string (interpreted as a single-element collection)
+        or any iterable of strings (e.g., tuple, list, set, generator).
+        The function returns a list of tuples representing the Cartesian product.
+
+        Args:
+            collection_a (Union[str, Iterable[str]]): First input, either a string or an iterable of strings.
+            collection_b (Union[str, Iterable[str]]): Second input, either a string or an iterable of strings.
+
+        Returns:
+            List[Tuple[str, str]]: List of all possible (collection_a, collection_b) pairs.
+        """
+
+        collection_a = (
+            (collection_a,) if isinstance(collection_a, str) else collection_a
+        )
+        collection_b = (
+            (collection_b,) if isinstance(collection_b, str) else collection_b
+        )
+
+        return list(product(collection_a, collection_b))
+
+        def store_parts(self):
+            return super().store_parts() + (
+                f"det_mod{self.list2str('detector_models')}",
+                f"scenario{self.list2str('scenario')}",
+            )
+
 
 class TestAT(BaseTask):
     detector_models = luigi.Parameter(default="ILD_FCCee_v02")
