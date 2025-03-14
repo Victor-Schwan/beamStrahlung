@@ -28,10 +28,12 @@ class SimulateEvents(TestAT, HTCondorWorkflow):
     bs_dir = code_dir / "beamStrahlung"
 
     def create_branch_map(self):
+        bmap = {0: self.detector_models}
+        print(bmap)
         if isinstance(self.detector_models, list):
             return {i: model for i, model in enumerate(self.detector_models)}
         elif isinstance(self.detector_models, str):
-            return {0: self.detector_models}
+            return bmap
         else:
             raise ValueError
 
@@ -39,30 +41,30 @@ class SimulateEvents(TestAT, HTCondorWorkflow):
         return self.local_target(f"sim_data_{self.branch}.edm4hep.root")
 
     def run(self):
+
+        print("I AM RUNNING")
+
         self.output().touch()
 
-        executable = "ddsim"
-        det_mod_config = get_paths_and_detector_configs()[self.branch_data]
-        raw_arguments = [
-            "--steeringFile",
-            self.bs_dir / "ddsim_keep_microcurlers_10MeV.py",
-            "--compactFile",
-            code_dir / f"k4geo/{det_mod_config.get_compact_file_path()}",
-            "--inputFile",
-            replace_BX_number_in_string(self.scenario, self.bunchcrossing),
-            "--outputFile",
-            self.output().path,
-            "--numberOfEvents",
-            str(self.n_events),
-            "--crossingAngleBoost",
-            str(det_mod_config.get_crossing_angle()),
-        ]
-        arguments = [fspath(i) if isinstance(i, Path) else i for i in raw_arguments]
-        if self.submit_jobs:
-            subprocess.run([executable] + arguments, check=True)
-        else:
-            print("Would run:", executable, " ".join(arguments))
+#        executable = "ddsim"
+#        det_mod_config = get_paths_and_detector_configs()[self.branch_data]
+#        raw_arguments = [
+#            "--steeringFile",
+#            self.bs_dir / "ddsim_keep_microcurlers_10MeV.py",
+#            "--compactFile",
+#            code_dir / f"k4geo/{det_mod_config.get_compact_file_path()}",
+#            "--inputFile",
+#            replace_BX_number_in_string(self.scenario, self.bunchcrossing),
+#            "--outputFile",
+#            self.output().path,
+#            "--numberOfEvents",
+#            str(self.n_events),
+#            "--crossingAngleBoost",
+#            str(det_mod_config.get_crossing_angle()),
+#        ]
+#        arguments = [fspath(i) if isinstance(i, Path) else i for i in raw_arguments]
+#        if self.submit_jobs:
+#            subprocess.run([executable] + arguments, check=True)
+#        else:
+#            print("Would run:", executable, " ".join(arguments))
 
-
-if __name__ == "__main__":
-    law.run()

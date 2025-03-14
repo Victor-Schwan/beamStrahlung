@@ -43,7 +43,9 @@ class BaseTask(law.Task):
     def local_path(self, *path):
         # DATA_PATH is defined in setup.sh
         parts = [str(p) for p in self.store_parts() + path]
-        return os.path.join(os.environ[data_dir_path_env_var], *parts)
+        p = os.path.join(os.environ[data_dir_path_env_var], *parts)
+        print(p)
+        return p
 
     def local_target(self, *args):
         cls = law.LocalFileTarget if args else law.LocalDirectoryTarget
@@ -91,7 +93,7 @@ class HTCondorWorkflow(law.htcondor.HTCondorWorkflow):
 bs_data_paths = construct_beamstrahlung_paths(desy_dust_home_path, True)
 
 # single source of truth, keys of bs_data_paths become values of tuple
-CHOICES_SCENARIOS = tuple(bs_data_paths)
+CHOICES_SCENARIOS = list(tuple(bs_data_paths))
 DEFAULT_SCENARIOS = ["FCC091"]
 
 
