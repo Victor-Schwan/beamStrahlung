@@ -7,13 +7,13 @@ import luigi
 
 from det_mod_configs import get_paths_and_detector_configs
 from framework import AnalysisTask, HTCondorWorkflow
-from shell_task import ShellTask
 from platform_paths import (
     code_dir,
     construct_beamstrahlung_paths,
     desy_dust_home_path,
     get_path_for_current_machine,
 )
+from shell_task import ShellTask
 from simall import replace_BX_number_in_string
 
 bs_data_paths = construct_beamstrahlung_paths(desy_dust_home_path, True)
@@ -42,7 +42,6 @@ class SimulateEvents(AnalysisTask, ShellTask, HTCondorWorkflow, law.LocalWorkflo
         return self.local_target(f"sim_data_{det_mod}_{scenario}.edm4hep.root")
 
     def build_command(self, fallback_level):
-
         det_mod = self.branch_data[0]
         scenario = self.branch_data[1]
 
@@ -64,7 +63,8 @@ class SimulateEvents(AnalysisTask, ShellTask, HTCondorWorkflow, law.LocalWorkflo
         ]
         arguments = [fspath(i) if isinstance(i, Path) else i for i in raw_arguments]
 
-        return ' '.join([executable, ' '.join(arguments)])
+        return " ".join([executable, " ".join(arguments)])
+
 
 if __name__ == "__main__":
     law.run()
