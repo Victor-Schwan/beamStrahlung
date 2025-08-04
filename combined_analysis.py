@@ -20,7 +20,7 @@ from plotting import plotting
 from simall import CHOICES_SCENARIOS, DEFAULT_SCENARIOS
 
 show_plts = False
-
+SIM_DATA_SUBDIR_NAME =""
 
 def parse_arguments():
     homeDir = get_home_directory()
@@ -133,7 +133,7 @@ def main():
     )
 
     # Parse the files to gather detector data and sort the keys
-    detector_data = sort_detector_data(parse_files(directory))
+    detector_data = sort_detector_data(parsed_data)
 
     if args.mode == "overview":
         print_detector_info(detector_data)
