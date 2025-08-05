@@ -131,8 +131,10 @@ def main():
     directory = resolve_path_with_env(
         Path(SIM_DATA_SUBDIR_NAME) / args.version, "dtDir"
     )
+    print(directory)
 
     # Parse the files to gather detector data and sort the keys
+    parsed_data = parse_files(directory)
     detector_data = sort_detector_data(parsed_data)
 
     if args.mode == "overview":
