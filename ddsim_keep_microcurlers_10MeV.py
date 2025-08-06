@@ -8,6 +8,7 @@
 import os
 
 from DDSim.DD4hepSimulation import DD4hepSimulation
+
 from g4units import GeV, MeV, m, mm, rad
 
 SIM = DD4hepSimulation()

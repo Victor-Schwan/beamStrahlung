@@ -20,7 +20,8 @@ from plotting import plotting
 from simall import CHOICES_SCENARIOS, DEFAULT_SCENARIOS
 
 show_plts = False
-SIM_DATA_SUBDIR_NAME =""
+SIM_DATA_SUBDIR_NAME = ""
+
 
 def parse_arguments():
     homeDir = get_home_directory()
