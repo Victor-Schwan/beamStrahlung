@@ -17,6 +17,7 @@ SPECTRE_MACHINE_IDENTIFIER = "spectre"
 SIM_DATA_SUBDIR_NAME = "sim"
 MY_CODE_DIR_ENV_VAR_NAME = "codeDir"
 
+
 def get_path_from_env(env_var: str) -> Path:
     """
     Returns the value of an environment variable as a Path.
@@ -28,6 +29,7 @@ def get_path_from_env(env_var: str) -> Path:
         return Path(environ[env_var])
     except KeyError as e:
         raise EnvironmentError(f"Environment variable '{env_var}' is not set.") from e
+
 
 code_dir = get_path_from_env(MY_CODE_DIR_ENV_VAR_NAME)
 config_file_path = code_dir / "beamStrahlung" / "uname_to_sys_map.json"
@@ -85,9 +87,7 @@ def identify_system() -> str:
     return user_to_system[current_user]
 
 
-desy_dust_home_path = (
-    Path("/data/dust/user") / environ["USER"]
-)
+desy_dust_home_path = Path("/data/dust/user") / environ["USER"]
 
 
 def get_home_directory():
@@ -96,9 +96,7 @@ def get_home_directory():
     return Path.home()
 
 
-def construct_beamstrahlung_paths(
-    desy_dust_home_path
-) -> Dict[str, Dict[str, Path]]:
+def construct_beamstrahlung_paths(desy_dust_home_path) -> Dict[str, Dict[str, Path]]:
     """
     Returns:
     Dict[str, Dict[str, Path]]: The first key is the background scenario
