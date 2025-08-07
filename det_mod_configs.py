@@ -30,7 +30,7 @@ class AcceleratorConfig:
 @dataclass
 class DetectorConfig:
     accelerator: AcceleratorConfig
-    relative_compact_file_path: Path
+    relative_compact_file_path: str
     sub_detector_collections: Dict
 
     def get_compact_file_path(self) -> Path:
