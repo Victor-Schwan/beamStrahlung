@@ -8,6 +8,9 @@
         "source.unusedImports": "always",
         "source.sort.json": "always",
         "source.fixAll.ruff": "always"
+    },
+    "[python]": {
+        "editor.defaultFormatter": "charliermarsh.ruff"
     }
 }
 
