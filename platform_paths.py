@@ -6,7 +6,7 @@ And further path utilities.
 """
 
 import json
-from os import getenv
+from os import environ
 from pathlib import Path
 from typing import Dict
 
@@ -17,11 +17,10 @@ SPECTRE_MACHINE_IDENTIFIER = "spectre"
 SIM_DATA_SUBDIR_NAME = "sim"
 MY_CODE_DIR_ENV_VAR_NAME = "codeDir"
 
-if not getenv(MY_CODE_DIR_ENV_VAR_NAME):
-    raise EnvironmentError(
-        f"Environment variable '{MY_CODE_DIR_ENV_VAR_NAME}' is not set."
-    )
-code_dir = Path(getenv(MY_CODE_DIR_ENV_VAR_NAME))
+try:
+    code_dir = Path(environ[MY_CODE_DIR_ENV_VAR_NAME])
+except KeyError as e:
+    raise EnvironmentError(f"Environment variable '{MY_CODE_DIR_ENV_VAR_NAME}' is not set.") from e
 config_file_path = code_dir / "beamStrahlung" / "uname_to_sys_map.json"
 
 
@@ -66,7 +65,7 @@ def identify_system() -> str:
     """
     user_to_system = load_user_to_system_mapping(config_file_path)
 
-    current_user = getenv("USER")
+    current_user = environ["USER"]
 
     if current_user is None:
         raise UnknownSystemError("The USER environment variable is not set.")
@@ -78,7 +77,7 @@ def identify_system() -> str:
 
 
 desy_dust_home_path = (
-    Path("/data/dust/user") / getenv("USER")
+    Path("/data/dust/user") / environ["USER"]
     if identify_system() == DESY_NAF_MACHINE_IDENTIFIER
     else None
 )
