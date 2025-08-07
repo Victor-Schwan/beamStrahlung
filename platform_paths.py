@@ -6,13 +6,40 @@ And further path utilities.
 """
 
 import json
+from enum import Enum
 from os import environ
 from pathlib import Path
 from typing import Dict
 
-KEK_MACHINE_IDENTIFIER = "kek"
-DESY_NAF_MACHINE_IDENTIFIER = "desy-naf"
-SPECTRE_MACHINE_IDENTIFIER = "spectre"
+
+class BGSourceKey(str, Enum):
+    """Background source keys."""
+
+    BS = "BS"  # beamstrahlung
+    SR = "SR"  # synchrotron_radiation
+    IN = "IN"  # injection
+
+
+class AccSetupKey(str, Enum):
+    """Accelerator setup keys."""
+
+    ILC250 = "ILC250"  # ILC 250GeV
+    FCC091 = "FCC091"  # FCCee 91GeV
+    FCC240 = "FCC240"  # FCCee 240GeV
+
+
+class MachineID(str, Enum):
+    """Machine identifier constants."""
+
+    KEK = "kek"
+    DESY_NAF = "desy-naf"
+    SPECTRE = "spectre"
+
+
+# TODO: remove references to below, deprecated non-enum machine IDs
+KEK_MACHINE_IDENTIFIER = MachineID.KEK
+DESY_NAF_MACHINE_IDENTIFIER = MachineID.DESY_NAF
+SPECTRE_MACHINE_IDENTIFIER = MachineID.SPECTRE
 
 SIM_DATA_SUBDIR_NAME = "sim"
 MY_CODE_DIR_ENV_VAR_NAME = "codeDir"
@@ -44,7 +71,7 @@ def load_user_to_system_mapping(filepath: Path | str) -> dict:
     Loads the user-to-system mapping from a JSON configuration file.
 
     Args:
-        filepath (str): The path to the JSON configuration file.
+        filepath (Path | str): The path to the JSON configuration file.
 
     Returns:
         dict: A dictionary mapping usernames to system names.
@@ -91,50 +118,66 @@ desy_dust_home_path = Path("/data/dust/user") / environ["USER"]
 
 
 def get_home_directory():
-    if identify_system() == DESY_NAF_MACHINE_IDENTIFIER:
+    if identify_system() == MachineID.DESY_NAF.value:
         return desy_dust_home_path
     return Path.home()
 
 
-def construct_beamstrahlung_paths(desy_dust_home_path) -> Dict[str, Dict[str, Path]]:
+def construct_beamstrahlung_paths(
+    desy_dust_home_path: Path,
+) -> Dict[str, Dict[str, Dict[str, Path]]]:
     """
+    Construct a nested dictionary containing paths to beamstrahlung background files.
+
+    The dictionary is structured as:
+        background_paths[source][accelerator][machine] -> Path to data file
+
     Returns:
-    Dict[str, Dict[str, Path]]: The first key is the background scenario
-                    and the second key is machine_identifier. The value
-                    is the path of the data file on the chosen machine.
+        Dict[str, Dict[str, Dict[str, Path]]]: A three-level nested dictionary with:
+            - First key: background source (e.g. "BS")
+            - Second key: accelerator setup (e.g. "ILC250")
+            - Third key: machine identifier (e.g. "kek", "desy-naf")
+            - Value: Path to the corresponding simulation data file
     """
 
-    desy_dust_beamstrahlung_base_path = (
-        desy_dust_home_path / "promotion" / "data" / "beamStrahlungDataFromDaniel"
-    )
+    # Common background base path
+    bg_base_path = desy_dust_home_path / "promotion" / "data" / "backgrounds"
+
+    # Background source-specific base paths
+    desy_dust_bg_base_paths: Dict[str, Path] = {
+        BGSourceKey.BS: bg_base_path / "beamStrahlungDataFromDaniel",
+        BGSourceKey.SR: bg_base_path / "SR_FCCee" / "SR_v5_cleaned_kevin",
+    }
 
     beam_strahlung_data_paths = {
-        "ILC250": {
-            KEK_MACHINE_IDENTIFIER: Path(
-                "/group/ilc/users/jeans/pairs-ILC250_gt2MeV/E250-SetA.PBeamstr-pairs.GGuineaPig-v1-4-4-gt2MeV.I270000.#N.pairs"
-            ),
-            DESY_NAF_MACHINE_IDENTIFIER: (
-                desy_dust_beamstrahlung_base_path
-                / "pairs-ILC250_gt2MeV/E250-SetA.PBeamstr-pairs.GGuineaPig-v1-4-4-gt2MeV.I270000.#N.pairs"
-            ),
-        },
-        "FCC091": {
-            KEK_MACHINE_IDENTIFIER: Path(
-                "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
-            ),
-            DESY_NAF_MACHINE_IDENTIFIER: (
-                desy_dust_beamstrahlung_base_path
-                / "tpc-ion_tpc-bspairs_input-allatip/pairs-#N_Z.pairs"
-            ),
-        },
-        "FCC240": {
-            KEK_MACHINE_IDENTIFIER: Path(
-                "/home/ilc/jeans/guineaPig/fromAndrea/pairs100/allAtIP_ZH/pairs-#N_ZH.pairs"
-            ),
-            DESY_NAF_MACHINE_IDENTIFIER: (
-                desy_dust_beamstrahlung_base_path
-                / "guineaPig_fromAndrea_pairs100_allAtIP-ZH/pairs-#N_ZH.pairs"
-            ),
+        BGSourceKey.BS.value: {
+            AccSetupKey.ILC250.value: {
+                MachineID.KEK.value: Path(
+                    "/group/ilc/users/jeans/pairs-ILC250_gt2MeV/E250-SetA.PBeamstr-pairs.GGuineaPig-v1-4-4-gt2MeV.I270000.#N.pairs"
+                ),
+                MachineID.DESY_NAF.value: (
+                    desy_dust_bg_base_paths[BGSourceKey.BS]
+                    / "pairs-ILC250_gt2MeV/E250-SetA.PBeamstr-pairs.GGuineaPig-v1-4-4-gt2MeV.I270000.#N.pairs"
+                ),
+            },
+            AccSetupKey.FCC091.value: {
+                MachineID.KEK.value: Path(
+                    "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
+                ),
+                MachineID.DESY_NAF.value: (
+                    desy_dust_bg_base_paths[BGSourceKey.BS]
+                    / "tpc-ion_tpc-bspairs_input-allatip/pairs-#N_Z.pairs"
+                ),
+            },
+            AccSetupKey.FCC240.value: {
+                MachineID.KEK.value: Path(
+                    "/home/ilc/jeans/guineaPig/fromAndrea/pairs100/allAtIP_ZH/pairs-#N_ZH.pairs"
+                ),
+                MachineID.DESY_NAF.value: (
+                    desy_dust_bg_base_paths[BGSourceKey.BS]
+                    / "guineaPig_fromAndrea_pairs100_allAtIP-ZH/pairs-#N_ZH.pairs"
+                ),
+            },
         },
     }
 
