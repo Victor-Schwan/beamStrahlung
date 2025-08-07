@@ -37,7 +37,7 @@ class UnknownSystemError(Exception):
     """Custom exception raised when the system cannot be identified."""
 
 
-def load_user_to_system_mapping(filepath: str) -> dict:
+def load_user_to_system_mapping(filepath: Path | str) -> dict:
     """
     Loads the user-to-system mapping from a JSON configuration file.
 
@@ -87,8 +87,6 @@ def identify_system() -> str:
 
 desy_dust_home_path = (
     Path("/data/dust/user") / environ["USER"]
-    if identify_system() == DESY_NAF_MACHINE_IDENTIFIER
-    else None
 )
 
 
@@ -99,7 +97,7 @@ def get_home_directory():
 
 
 def construct_beamstrahlung_paths(
-    desy_dust_home_path, is_executed_on_desy_naf
+    desy_dust_home_path
 ) -> Dict[str, Dict[str, Path]]:
     """
     Returns:
@@ -110,8 +108,6 @@ def construct_beamstrahlung_paths(
 
     desy_dust_beamstrahlung_base_path = (
         desy_dust_home_path / "promotion" / "data" / "beamStrahlungDataFromDaniel"
-        if is_executed_on_desy_naf
-        else ""
     )
 
     beam_strahlung_data_paths = {
