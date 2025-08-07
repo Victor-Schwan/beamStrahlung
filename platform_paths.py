@@ -17,10 +17,19 @@ SPECTRE_MACHINE_IDENTIFIER = "spectre"
 SIM_DATA_SUBDIR_NAME = "sim"
 MY_CODE_DIR_ENV_VAR_NAME = "codeDir"
 
-try:
-    code_dir = Path(environ[MY_CODE_DIR_ENV_VAR_NAME])
-except KeyError as e:
-    raise EnvironmentError(f"Environment variable '{MY_CODE_DIR_ENV_VAR_NAME}' is not set.") from e
+def get_path_from_env(env_var: str) -> Path:
+    """
+    Returns the value of an environment variable as a Path.
+
+    Raises:
+        EnvironmentError: If the environment variable is not set.
+    """
+    try:
+        return Path(environ[env_var])
+    except KeyError as e:
+        raise EnvironmentError(f"Environment variable '{env_var}' is not set.") from e
+
+code_dir = get_path_from_env(MY_CODE_DIR_ENV_VAR_NAME)
 config_file_path = code_dir / "beamStrahlung" / "uname_to_sys_map.json"
 
 
@@ -200,11 +209,7 @@ def resolve_path_with_env(input_path: str | Path, env_var_name: str) -> Path:
         return path
 
     # Check if the specified environment variable is set
-    env_var_value = getenv(env_var_name)
-
-    if env_var_value is None:
-        raise EnvironmentError(f"The environment variable '{env_var_name}' is not set.")
+    env_var_value = get_path_from_env(env_var_name)
 
     # Combine the environment variable value with the provided path
-    combined_path = Path(env_var_value) / path
-    return combined_path
+    return Path(env_var_value) / path
