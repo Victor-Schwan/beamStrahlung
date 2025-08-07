@@ -23,9 +23,7 @@ is_executed_on_DESY_NAF = identify_system() == DESY_NAF_MACHINE_IDENTIFIER
 beamstrahlung_code_dir = code_dir / "beamStrahlung"
 k4geoDir = code_dir / "k4geo"
 out_Dir_base_path = desy_dust_home_path if is_executed_on_DESY_NAF else Path.home()
-bs_data_paths = construct_beamstrahlung_paths(
-    desy_dust_home_path
-)
+bs_data_paths = construct_beamstrahlung_paths(desy_dust_home_path)
 
 # single source of truth, keys of bs_data_paths become values of tuple
 CHOICES_SCENARIOS = tuple(bs_data_paths)
