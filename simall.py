@@ -180,9 +180,8 @@ def main():
                     str(det_mod_configs.get_crossing_angle()),
                 ]
 
-                if det_mod_configs.is_accelerator_ilc:
-                    # increased resources needed
-                    more_resources = True
+                # TODO: implement better
+                if det_mod_configs.is_accelerator_ilc():
                     # Determine particles per event value for "ILC" scenario
                     particles_per_event = (
                         str(args.guineaPigPartPerE)
@@ -212,7 +211,7 @@ def main():
                     args.submit_jobs,
                     beamstrahlung_code_dir,
                     executable,
-                    more_rscrs=more_resources,
+                    more_rscrs=det_mod_configs.is_accelerator_ilc(),
                 )
 
 
