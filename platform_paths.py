@@ -116,8 +116,6 @@ def construct_beamstrahlung_paths(desy_dust_home_path) -> Dict[str, Dict[str, Pa
             DESY_NAF_MACHINE_IDENTIFIER: (
                 desy_dust_beamstrahlung_base_path
                 / "pairs-ILC250_gt2MeV/E250-SetA.PBeamstr-pairs.GGuineaPig-v1-4-4-gt2MeV.I270000.#N.pairs"
-                if desy_dust_beamstrahlung_base_path
-                else ""
             ),
         },
         "FCC091": {
@@ -127,8 +125,6 @@ def construct_beamstrahlung_paths(desy_dust_home_path) -> Dict[str, Dict[str, Pa
             DESY_NAF_MACHINE_IDENTIFIER: (
                 desy_dust_beamstrahlung_base_path
                 / "tpc-ion_tpc-bspairs_input-allatip/pairs-#N_Z.pairs"
-                if desy_dust_beamstrahlung_base_path
-                else ""
             ),
         },
         "FCC240": {
@@ -138,8 +134,6 @@ def construct_beamstrahlung_paths(desy_dust_home_path) -> Dict[str, Dict[str, Pa
             DESY_NAF_MACHINE_IDENTIFIER: (
                 desy_dust_beamstrahlung_base_path
                 / "guineaPig_fromAndrea_pairs100_allAtIP-ZH/pairs-#N_ZH.pairs"
-                if desy_dust_beamstrahlung_base_path
-                else ""
             ),
         },
     }
