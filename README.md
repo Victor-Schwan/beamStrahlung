@@ -4,9 +4,21 @@
 
 Analyze the impact of (beam-induced) backgrounds on various detector models across different accelerators and center-of-mass energy settings 🔍
 
-## 1. Create the environment variable `codeDir`
+## 1. Set up environment variables
 
-Set the `codeDir` environment variable such that it points to the path of the parent directory containing the `k4geo` and `beamStrahlung` repositories. These two repositories should be located in the same parent directory.
+Create and set the following environment variables:
+
+  - `codeDir`: Set this to the path of the parent directory containing the `k4geo` and `beamStrahlung` repositories, which should be in the same parent directory.
+
+  - `dtDir`: Set this to the folder where all the data will be stored. On remote computing clusters, the `dtDir` might be a subdirectory of your home directory, but in many cases, it should be located on a different file system with sufficient storage capacity.
+
+Example of setting the environment variables:
+
+```bash
+export codeDir=/path/to/parent/repositories
+export dtDir=/path/to/data/directory
+```
+
 
 ## 2. Set up the machine identifier
 

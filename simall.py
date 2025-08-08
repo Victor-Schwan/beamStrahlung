@@ -15,6 +15,7 @@ from platform_paths import (
     desy_dust_home_path,
     edm4hep_file_suffix,
     get_path_for_current_machine,
+    resolve_path_with_env,
     identify_system,
 )
 from submit_utils_4_simall import submit_job
@@ -133,9 +134,7 @@ def main():
     # source_setup_script(setupScriptPath)  # This will not affect the Python environment
 
     args = parse_arguments()
-    out_dir = (
-        out_Dir_base_path / "promotion" / "data" / SIM_DATA_SUBDIR_NAME / args.version
-    )  # assumption
+    out_dir = resolve_path_with_env(Path(SIM_DATA_SUBDIR_NAME) / args.version, "dtDir")
     out_dir.mkdir(parents=True, exist_ok=True)
 
     det_mod_configs_dict_filtered = {
