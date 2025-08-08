@@ -1,16 +1,19 @@
 {
-    "python.analysis.typeCheckingMode": "standard",
-    "pylint.enabled": true,
-    "editor.defaultFormatter": "charliermarsh.ruff",
-    "notebook.defaultFormatter": "charliermarsh.ruff",
-    "ruff.organizeImports": true,
-    "editor.codeActionsOnSave": {
-        "source.unusedImports": "always",
-        "source.sort.json": "always",
-        "source.fixAll.ruff": "always"
-    },
     "[python]": {
         "editor.defaultFormatter": "charliermarsh.ruff"
-    }
+    },
+    "editor.codeActionsOnSave": {
+        "source.fixAll.ruff": "always",
+        "source.sort.json": "always",
+        "source.unusedImports": "always"
+    },
+    "editor.defaultFormatter": "charliermarsh.ruff",
+    "notebook.defaultFormatter": "charliermarsh.ruff",
+    "pylint.args": [
+        "--disable=redefined-outer-name",
+        "--good-names ('bX', 'BX')"
+    ],
+    "pylint.enabled": true,
+    "python.analysis.typeCheckingMode": "standard",
+    "ruff.organizeImports": true
 }
-

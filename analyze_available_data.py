@@ -53,8 +53,8 @@ def parse_files(directory):
         detector_model = parts[0].rstrip("_")
         scenario = parts[1]
         bX_number = parts[2]
-        e_number = parts[3].split("_")[-1]
-
+        # pylint: disable-next=unused-variable
+        e_number = parts[3].split("_")[-1]  # noqa: F841
         # Add the bX_Number to the appropriate detector_model and scenario
         detector_data[detector_model][scenario].add(bX_number)
 
