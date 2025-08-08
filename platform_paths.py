@@ -11,6 +11,8 @@ from os import environ
 from pathlib import Path
 from typing import Dict
 
+edm4hep_file_suffix = ".edm4hep.root"
+
 
 class BGSourceKey(str, Enum):
     """Background source keys."""

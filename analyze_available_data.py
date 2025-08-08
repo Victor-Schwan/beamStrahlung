@@ -21,6 +21,8 @@ from pathlib import Path
 
 from tabulate import tabulate
 
+from platform_paths import edm4hep_file_suffix
+
 
 def parse_files(directory):
     """
@@ -41,7 +43,7 @@ def parse_files(directory):
     detector_data = defaultdict(lambda: defaultdict(set))
 
     # Iterate over all .edm4hep.root files in the provided directory
-    for file_path in Path(directory).rglob("*.edm4hep.root"):
+    for file_path in Path(directory).rglob(f"*{edm4hep_file_suffix}"):
         # Extract components of the filename
         parts = file_path.stem.split("-")
 

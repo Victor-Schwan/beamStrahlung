@@ -8,15 +8,16 @@ import numpy as np
 import uproot
 
 from det_mod_configs import detector_model_configurations
+from platform_paths import edm4hep_file_suffix
 
 save_plots = False
 show_plts = True
 
-inputFileDefault = (
+input_file_default = (
     Path.home()
     / "promotion/data/TEST_IMPROVED/ILD_FCCee_v01"
-    / "pairs-2_ZHatIP_tpcTimeKeepMC_keep_microcurlers_10MeV_30mrad_ILD_FCCee_v01.emd4hep.root"
-)
+    / "pairs-2_ZHatIP_tpcTimeKeepMC_keep_microcurlers_10MeV_30mrad_ILD_FCCee_v01"
+).with_suffix(edm4hep_file_suffix)
 
 
 def get_argument_name_space() -> argparse.Namespace:
@@ -24,7 +25,7 @@ def get_argument_name_space() -> argparse.Namespace:
     parser.add_argument(
         "--inputFiles",
         "-f",
-        default=fspath(inputFileDefault),
+        default=fspath(input_file_default),
         type=str,
         nargs="+",
         help="relative path to the input file",

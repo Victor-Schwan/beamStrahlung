@@ -12,6 +12,7 @@ from det_mod_configs import (
 )
 from platform_paths import (
     SIM_DATA_SUBDIR_NAME,
+    edm4hep_file_suffix,
     get_home_directory,
     resolve_path_with_env,
 )
@@ -91,7 +92,7 @@ def analyze_combination(directory, detector_model, scenario, detector_data, args
         fspath(p)
         for bX_identifier in bX_identifiers
         for p in directory.glob(
-            f"{detector_model}-{scenario}-{bX_identifier}-nEvts_*.edm4hep.root"
+            f"{detector_model}-{scenario}-{bX_identifier}-nEvts_*{edm4hep_file_suffix}"
         )
     ]
 

@@ -13,6 +13,7 @@ from platform_paths import (
     code_dir,
     construct_beamstrahlung_paths,
     desy_dust_home_path,
+    edm4hep_file_suffix,
     get_path_for_current_machine,
     identify_system,
 )
@@ -172,7 +173,7 @@ def main():
                     "--inputFile",
                     str(bs_path_with_BX_number),
                     "--outputFile",
-                    str(out_name.with_suffix(".edm4hep.root")),
+                    str(out_name.with_suffix(edm4hep_file_suffix)),
                     "--numberOfEvents",
                     str(args.nEvents),
                     "--crossingAngleBoost",
