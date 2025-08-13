@@ -1,7 +1,8 @@
 import argparse
 from os import fspath
+import json
 from pathlib import Path
-
+import numpy as np
 from tabulate import tabulate
 
 from analyze_available_data import parse_files, print_detector_info, sort_detector_data
@@ -70,6 +71,16 @@ def parse_arguments():
 
     return parser.parse_args()
 
+def convert_to_serializable(obj):
+    """Recursively convert NumPy arrays to lists for JSON serialization."""
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, dict):
+        return {k: convert_to_serializable(v) for k, v in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_to_serializable(i) for i in obj]
+    else:
+        return obj
 
 def analyze_combination(directory, detector_model, scenario, detector_data, args):
     """Analyze a specific combination of detector model and scenario."""
@@ -111,6 +122,26 @@ def analyze_combination(directory, detector_model, scenario, detector_data, args
     pos, time = handle_cache_operations(
         args.cacheDir, detector_model, scenario, num_bX, file_paths
     )
+        
+    # Ensure the json_data directory exists
+    json_data_dir = directory / "json_data"
+    json_data_dir.mkdir(parents=True, exist_ok=True)
+
+    # Define the output JSON file path
+    json_file_path = json_data_dir / f"{detector_model}_{scenario}_pos.json"
+
+    data_to_save = {
+    "detector_model": detector_model,
+    "scenario": scenario,
+    "num_bunch_crossings": num_bX,
+    "pos": convert_to_serializable(pos),
+    "time": convert_to_serializable(time),
+    }
+
+    # Save the dictionary to a JSON file
+    with open(json_file_path, "w") as json_file:
+        json.dump(data_to_save, json_file, indent=4)
+
 
     plotting(
         pos,

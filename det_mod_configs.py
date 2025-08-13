@@ -18,6 +18,7 @@ DEFAULT_DETECTOR_MODELS = "ILD_FCCee_v01", "ILD_l5_v02"
 class HitCollection:
     root_tree_branch_name: str
     plot_collection_prefix: str
+    only_double_layers: bool
 
 
 @dataclass
@@ -68,19 +69,23 @@ sub_det_cols_fcc = {
     "vb": HitCollection(
         root_tree_branch_name="VertexBarrelCollection",
         plot_collection_prefix="Vertex Barrel",
+        only_double_layers=True,
     ),
     "ve": HitCollection(
         root_tree_branch_name="VertexEndcapCollection",
         plot_collection_prefix="Vertex Endcap",
+        only_double_layers=True,
     ),
 }
 
 sub_det_cols_ilc = {
     "vb": HitCollection(
-        root_tree_branch_name="VXDCollection", plot_collection_prefix="Vertex"
+        root_tree_branch_name="VXDCollection", plot_collection_prefix="Vertex",
+        only_double_layers=True,
     ),
     "f": HitCollection(
-        root_tree_branch_name="FTDCollection", plot_collection_prefix="Forward"
+        root_tree_branch_name="FTDCollection", plot_collection_prefix="Forward",
+        only_double_layers=True,
     ),
 }
 
