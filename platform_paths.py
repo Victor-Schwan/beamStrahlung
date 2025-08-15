@@ -124,6 +124,81 @@ def get_home_directory():
         return desy_dust_home_path
     return Path.home()
 
+def construct_SR_paths(
+    desy_dust_home_path, is_executed_on_desy_naf
+) -> Dict[str, Dict[str, Path]]:
+    """
+    Returns:
+    Dict[str, Dict[str, Path]]: The first key is the background scenario
+                    and the second key is machine_identifier. The value
+                    is the path of the data file on the chosen machine.
+    """
+
+    desy_dust_SR_base_path = (
+        desy_dust_home_path / "promotion" / "data" / "split_up_SR_files"
+        if is_executed_on_desy_naf
+        else ""
+    )
+
+    sr_data_paths = {
+        "182GeVcom_nzco_10urad": {
+            KEK_MACHINE_IDENTIFIER: Path(
+                "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
+            ),
+            DESY_NAF_MACHINE_IDENTIFIER: (
+                desy_dust_SR_base_path
+                / "sr_photons_from_positron_182GeVcom_nzco_10urad_v23_mediumfilter/sr_photons_from_positron_182GeVcom_nzco_10urad_v23_mediumfilter_part_#N.hepevt"
+                if desy_dust_SR_base_path
+                else ""
+            ),
+        },
+        "182GeVcom_nzco_2urad": {
+            KEK_MACHINE_IDENTIFIER: Path(
+                "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
+            ),
+            DESY_NAF_MACHINE_IDENTIFIER: (
+                desy_dust_SR_base_path
+                / "sr_photons_from_positron_182GeVcom_nzco_2urad_v23_mediumfilter/sr_photons_from_positron_182GeVcom_nzco_2urad_v23_mediumfilter_part_#N.hepevt"
+                if desy_dust_SR_base_path
+                else ""
+            ),
+        },
+        "182GeVcom_nzco_6urad": {
+            KEK_MACHINE_IDENTIFIER: Path(
+                "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
+            ),
+            DESY_NAF_MACHINE_IDENTIFIER: (
+                desy_dust_SR_base_path
+                / "sr_photons_from_positron_182GeVcom_nzco_6urad_v23_mediumfilter/sr_photons_from_positron_182GeVcom_nzco_6urad_v23_mediumfilter_part_#N.hepevt"
+                if desy_dust_SR_base_path
+                else ""
+            ),
+        },
+        "20Mpositron_45GeVcom_halo": {
+            KEK_MACHINE_IDENTIFIER: Path(
+                "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
+            ),
+            DESY_NAF_MACHINE_IDENTIFIER: (
+                desy_dust_SR_base_path
+                / "sr_photons_from_20Mpositron_45GeVcom_halo_v23_mediumfilter/sr_photons_from_20Mpositron_45GeVcom_halo_v23_mediumfilter_part_#N.hepevt"
+                if desy_dust_SR_base_path
+                else ""
+            ),
+        },
+        "40Mpositron_45GeVcom_halo": {
+            KEK_MACHINE_IDENTIFIER: Path(
+                "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
+            ),
+            DESY_NAF_MACHINE_IDENTIFIER: (
+                desy_dust_SR_base_path
+                / "sr_photons_from_40Mpositron_182GeVcom_halo_v23_mediumfilter/sr_photons_from_40Mpositron_182GeVcom_halo_v23_mediumfilter_part_#N.hepevt"
+                if desy_dust_SR_base_path
+                else ""
+            ),
+        },
+    }
+
+    return sr_data_paths
 
 def construct_beamstrahlung_paths(
     desy_dust_home_path: Path,
@@ -142,48 +217,113 @@ def construct_beamstrahlung_paths(
             - Value: Path to the corresponding simulation data file
     """
 
-    # Common background base path
-    bg_base_path = desy_dust_home_path / "promotion" / "data" / "backgrounds"
+    desy_dust_SR_base_path = (
+        desy_dust_home_path / "promotion" / "data" / "split_up_SR_files"
+        if is_executed_on_desy_naf
+        else ""
+    )
 
-    # Background source-specific base paths
-    desy_dust_bg_base_paths: Dict[str, Path] = {
-        BGSourceKey.BS: bg_base_path / "beamStrahlungDataFromDaniel",
-        BGSourceKey.SR: bg_base_path / "SR_FCCee" / "SR_v5_cleaned_kevin",
+    sr_data_paths = {
+        "182GeVcom_nzco_10urad": {
+            KEK_MACHINE_IDENTIFIER: Path(
+                "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
+            ),
+            DESY_NAF_MACHINE_IDENTIFIER: (
+                desy_dust_SR_base_path
+                / "sr_photons_from_positron_182GeVcom_nzco_10urad_v23_mediumfilter/sr_photons_from_positron_182GeVcom_nzco_10urad_v23_mediumfilter_part_#N.hepevt"
+                if desy_dust_SR_base_path
+                else ""
+            ),
+        },
+        "182GeVcom_nzco_2urad": {
+            KEK_MACHINE_IDENTIFIER: Path(
+                "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
+            ),
+            DESY_NAF_MACHINE_IDENTIFIER: (
+                desy_dust_SR_base_path
+                / "sr_photons_from_positron_182GeVcom_nzco_2urad_v23_mediumfilter/sr_photons_from_positron_182GeVcom_nzco_2urad_v23_mediumfilter_part_#N.hepevt"
+                if desy_dust_SR_base_path
+                else ""
+            ),
+        },
+        "182GeVcom_nzco_6urad": {
+            KEK_MACHINE_IDENTIFIER: Path(
+                "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
+            ),
+            DESY_NAF_MACHINE_IDENTIFIER: (
+                desy_dust_SR_base_path
+                / "sr_photons_from_positron_182GeVcom_nzco_6urad_v23_mediumfilter/sr_photons_from_positron_182GeVcom_nzco_6urad_v23_mediumfilter_part_#N.hepevt"
+                if desy_dust_SR_base_path
+                else ""
+            ),
+        },
+        "20Mpositron_45GeVcom_halo": {
+            KEK_MACHINE_IDENTIFIER: Path(
+                "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
+            ),
+            DESY_NAF_MACHINE_IDENTIFIER: (
+                desy_dust_SR_base_path
+                / "sr_photons_from_20Mpositron_45GeVcom_halo_v23_mediumfilter/sr_photons_from_20Mpositron_45GeVcom_halo_v23_mediumfilter_part_#N.hepevt"
+                if desy_dust_SR_base_path
+                else ""
+            ),
+        },
+        "40Mpositron_45GeVcom_halo": {
+            KEK_MACHINE_IDENTIFIER: Path(
+                "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
+            ),
+            DESY_NAF_MACHINE_IDENTIFIER: (
+                desy_dust_SR_base_path
+                / "sr_photons_from_40Mpositron_182GeVcom_halo_v23_mediumfilter/sr_photons_from_40Mpositron_182GeVcom_halo_v23_mediumfilter_part_#N.hepevt"
+                if desy_dust_SR_base_path
+                else ""
+            ),
+        },
     }
 
     beam_strahlung_data_paths = {
-        BGSourceKey.BS.value: {
-            AccSetupKey.ILC250.value: {
-                MachineID.KEK.value: Path(
-                    "/group/ilc/users/jeans/pairs-ILC250_gt2MeV/E250-SetA.PBeamstr-pairs.GGuineaPig-v1-4-4-gt2MeV.I270000.#N.pairs"
-                ),
-                MachineID.DESY_NAF.value: (
-                    desy_dust_bg_base_paths[BGSourceKey.BS]
-                    / "pairs-ILC250_gt2MeV/E250-SetA.PBeamstr-pairs.GGuineaPig-v1-4-4-gt2MeV.I270000.#N.pairs"
-                ),
-            },
-            AccSetupKey.FCC091.value: {
-                MachineID.KEK.value: Path(
-                    "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
-                ),
-                MachineID.DESY_NAF.value: (
-                    desy_dust_bg_base_paths[BGSourceKey.BS]
-                    / "tpc-ion_tpc-bspairs_input-allatip/pairs-#N_Z.pairs"
-                ),
-            },
-            AccSetupKey.FCC240.value: {
-                MachineID.KEK.value: Path(
-                    "/home/ilc/jeans/guineaPig/fromAndrea/pairs100/allAtIP_ZH/pairs-#N_ZH.pairs"
-                ),
-                MachineID.DESY_NAF.value: (
-                    desy_dust_bg_base_paths[BGSourceKey.BS]
-                    / "guineaPig_fromAndrea_pairs100_allAtIP-ZH/pairs-#N_ZH.pairs"
-                ),
-            },
+        "ILC250": {
+            KEK_MACHINE_IDENTIFIER: Path(
+                "/group/ilc/users/jeans/pairs-ILC250_gt2MeV/E250-SetA.PBeamstr-pairs.GGuineaPig-v1-4-4-gt2MeV.I270000.#N.pairs"
+            ),
+            DESY_NAF_MACHINE_IDENTIFIER: (
+                desy_dust_beamstrahlung_base_path
+                / "pairs-ILC250_gt2MeV/E250-SetA.PBeamstr-pairs.GGuineaPig-v1-4-4-gt2MeV.I270000.#N.pairs"
+                if desy_dust_beamstrahlung_base_path
+                else ""
+            ),
+        },
+        "FCC091": {
+            DESY_NAF_MACHINE_IDENTIFIER: (
+                desy_dust_beamstrahlung_base_path
+                / "tpc-ion_tpc-bspairs_input-allatip/pairs-#N_Z.pairs"
+                if desy_dust_beamstrahlung_base_path
+                else ""
+            ),
+        },
+        "FCC240": {
+            KEK_MACHINE_IDENTIFIER: Path(
+                "/home/ilc/jeans/guineaPig/fromAndrea/pairs100/allAtIP_ZH/pairs-#N_ZH.pairs"
+            ),
+            DESY_NAF_MACHINE_IDENTIFIER: (
+                desy_dust_beamstrahlung_base_path
+                / "guineaPig_fromAndrea_pairs100_allAtIP-ZH/pairs-#N_ZH.pairs"
+                if desy_dust_beamstrahlung_base_path
+                else ""
+            ),
         },
     }
 
     return beam_strahlung_data_paths
+
+def construct_paths(
+    desy_dust_home_path, is_executed_on_desy_naf
+):  
+    bs_data_paths = construct_beamstrahlung_paths(desy_dust_home_path, is_executed_on_desy_naf)
+    sr_data_paths = construct_SR_paths(desy_dust_home_path, is_executed_on_desy_naf)
+
+    return bs_data_paths, sr_data_paths
+    
 
 
 def get_path_for_current_machine(path_dict: dict) -> Path:
@@ -245,4 +385,5 @@ def resolve_path_with_env(input_path: str | Path, env_var_name: str) -> Path:
     env_var_value = get_path_from_env(env_var_name)
 
     # Combine the environment variable value with the provided path
-    return Path(env_var_value) / path
+    combined_path = Path(env_var_value) / path
+    return combined_path

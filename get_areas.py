@@ -46,9 +46,9 @@ def get_areas():
 
     total_barrel_area = 0
     for r in constants["VertexBarrel_r"]:
-        total_barrel_area += 2 * pi * r * constants["VertexBarrel_zmax"][0] * 2
+        total_barrel_area += 2 * pi * r * constants["VertexBarrel_zmax"][0] * 2 * 2
 
-    total_endcap_area = pi * constants["VertexEndcap_rmax"][0]**2 * len(constants["VertexEndcap_z"])
+    total_endcap_area = pi * constants["VertexEndcap_rmax"][0]**2 * len(constants["VertexEndcap_z"]) * 2
 
     return total_barrel_area, total_endcap_area
     

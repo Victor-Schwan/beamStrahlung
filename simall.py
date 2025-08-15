@@ -1,5 +1,6 @@
 import argparse
 from pathlib import Path
+import os
 
 from det_mod_configs import (
     CHOICES_DETECTOR_MODELS,
@@ -11,7 +12,7 @@ from platform_paths import (
     SIM_DATA_SUBDIR_NAME,
     BGSourceKey,
     code_dir,
-    construct_beamstrahlung_paths,
+    construct_paths,
     desy_dust_home_path,
     edm4hep_file_suffix,
     get_path_for_current_machine,
@@ -19,18 +20,19 @@ from platform_paths import (
     identify_system,
 )
 from submit_utils_4_simall import submit_job
-
 is_executed_on_DESY_NAF = identify_system() == DESY_NAF_MACHINE_IDENTIFIER
 
 # define paths for later use
 beamstrahlung_code_dir = code_dir / "beamStrahlung"
 k4geoDir = code_dir / "k4geo"
 out_Dir_base_path = desy_dust_home_path if is_executed_on_DESY_NAF else Path.home()
-bs_data_paths = construct_beamstrahlung_paths(desy_dust_home_path)[BGSourceKey.BS.value]
+bs_data_paths, sr_data_paths = construct_paths(
+    desy_dust_home_path, is_executed_on_DESY_NAF
+)
 
 # single source of truth, keys of bs_data_paths become values of tuple
-CHOICES_SCENARIOS = tuple(bs_data_paths)
-DEFAULT_SCENARIOS = ("FCC240",)
+CHOICES_SCENARIOS = tuple(sr_data_paths)
+DEFAULT_SCENARIOS = ("182GeVcom_nzco_10urad",)
 
 # Source the setup script (this will be a no-op in Python, since sourcing doesn't propagate in subprocess)
 SETUP_SCRIPT_PATH = "/cvmfs/sw-nightlies.hsf.org/key4hep/setup.sh"
@@ -72,6 +74,14 @@ def parse_arguments():
     )
 
     parser.add_argument(
+        "--background",
+        type=str,
+        default="beamstrahlung",
+        choices=("beamstrahlung", "synchrotron"),
+        help="Type of background data to read"
+    )
+
+    parser.add_argument(
         "--detectorModel",
         choices=CHOICES_DETECTOR_MODELS,
         nargs="+",
@@ -94,12 +104,18 @@ def parse_arguments():
     return parser.parse_args()
 
 
-def replace_BX_number_in_string(bs_type_name: str, BX_n: int) -> str:
-    if bs_type_name == "ILC250":
-        return str(get_path_for_current_machine(bs_data_paths[bs_type_name])).replace(
+def replace_BX_number_in_string(type_name: str, BX_n: int, background: str) -> str:
+
+    if background == "beamstrahlung":
+        data_paths = bs_data_paths
+    else:
+        data_paths = sr_data_paths
+
+    if type_name == "ILC250":
+        return str(get_path_for_current_machine(data_paths[type_name])).replace(
             "#N", str(BX_n).zfill(4)
         )
-    return str(get_path_for_current_machine(bs_data_paths[bs_type_name])).replace(
+    return str(get_path_for_current_machine(data_paths[type_name])).replace(
         "#N", str(BX_n)
     )
 
@@ -108,7 +124,7 @@ def check_max_BX_number_exceeded(bs_type_name: str, bunchcrossing: int) -> bool:
     """
     Check whether maximum number of bunch crossings per beam strahlung type is exceeded.
     """
-    if bs_type_name in {"FCC240", "FCC091"} and bunchcrossing > 100:
+    if bs_type_name in {"FCC240", "FCC091"} and bunchcrossing > 450:
         print(
             f"\nThere are only 100 bunch crossing for {bs_type_name} available",
             end="\n\n",
@@ -122,6 +138,23 @@ def check_max_BX_number_exceeded(bs_type_name: str, bunchcrossing: int) -> bool:
         return True
     return False
 
+def save_bX_count(scenario, background, out_dir):
+
+    first_bx_path = replace_BX_number_in_string(scenario, 1, background)
+    if os.path.exists(first_bx_path):
+        input_folder = os.path.dirname(first_bx_path)
+        if background == "synchrotron":
+            num_bx = 1
+        else:
+            num_bx = len([
+                f for f in os.listdir(input_folder)
+                if os.path.isfile(os.path.join(input_folder, f))
+            ])
+        bx_count_file = out_dir / f"{scenario}_number_of_bx.txt"
+        with open(bx_count_file, "w") as f:
+            f.write(f"{num_bx}\n")
+    else:
+        print(f"⚠️ No files found for scenario {scenario}, skipping count.")
 
 def main():
     # # Function to simulate sourcing (can only be done inside the same shell process)
@@ -134,7 +167,9 @@ def main():
     # source_setup_script(setupScriptPath)  # This will not affect the Python environment
 
     args = parse_arguments()
-    out_dir = resolve_path_with_env(Path(SIM_DATA_SUBDIR_NAME) / args.version, "dtDir")
+    out_dir = (
+        out_Dir_base_path / "promotion" / "data" / SIM_DATA_SUBDIR_NAME / args.version
+    )  # assumption
     out_dir.mkdir(parents=True, exist_ok=True)
 
     det_mod_configs_dict_filtered = {
@@ -145,14 +180,21 @@ def main():
 
     # Iterate over the beam strahlung scenarios
     for bs_scenario_name in args.scenario:
+
+        save_bX_count(bs_scenario_name, args.background, out_dir)
+
         # loop over different files, bX is file index
         for bunchcrossing in range(1, args.bunchCrossingEnd + 1):
-            if check_max_BX_number_exceeded(bs_scenario_name, bunchcrossing):
-                break
 
             bs_path_with_BX_number = replace_BX_number_in_string(
-                bs_scenario_name, bunchcrossing
+                bs_scenario_name, bunchcrossing, args.background
             )
+            if not os.path.exists(bs_path_with_BX_number):
+                print(
+                    f"\nThere are only {bunchcrossing-1} files for {bs_scenario_name} available",
+                    end="\n\n",
+                )
+                break
 
             # Iterate over the detector models
             for det_mod_name, det_mod_configs in det_mod_configs_dict_filtered.items():
@@ -161,6 +203,8 @@ def main():
                     out_dir
                     / f"{det_mod_name}-{bs_scenario_name}-bX_{str(bunchcrossing).zfill(4)}-nEvts_{args.nEvents}"
                 )
+
+                print(bs_path_with_BX_number)
 
                 # Define the executable and arguments separately
                 executable = "ddsim"
@@ -181,6 +225,7 @@ def main():
 
                 # TODO: implement better
                 if det_mod_configs.is_accelerator_ilc():
+                    more_resources = True
                     # Determine particles per event value for "ILC" scenario
                     particles_per_event = (
                         str(args.guineaPigPartPerE)
@@ -210,7 +255,7 @@ def main():
                     args.submit_jobs,
                     beamstrahlung_code_dir,
                     executable,
-                    more_rscrs=det_mod_configs.is_accelerator_ilc(),
+                    more_rscrs=more_resources,
                 )
 
 
