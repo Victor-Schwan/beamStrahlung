@@ -1,7 +1,8 @@
 import argparse
-from os import fspath, environ
 import json
+from os import environ, fspath
 from pathlib import Path
+
 import numpy as np
 from tabulate import tabulate
 
@@ -18,7 +19,7 @@ from platform_paths import (
     resolve_path_with_env,
 )
 from plotting import plotting
-from simall import CHOICES_SCENARIOS, DEFAULT_SCENARIOS
+from simall import CHOICES_SCENARIOS, DEFAULT_SCENARIOS, get_args
 
 show_plts = False
 SIM_DATA_SUBDIR_NAME = ""
@@ -52,11 +53,15 @@ def parse_arguments():
         help="Specify one or more detector models for analysis",
     )
     parser.add_argument(
+        "--background",
+        type=str,
+        choices=CHOICES_SCENARIOS.keys(),
+        help="Type of background data to read. Defaults to version if valid option or else beamstrahlung",
+    )
+    parser.add_argument(
         "--scenario",
         nargs="+",
         type=str,
-        choices=CHOICES_SCENARIOS,
-        default=DEFAULT_SCENARIOS,
         help="Specify one or more scenarios for analysis",
     )
     parser.add_argument(
@@ -71,6 +76,7 @@ def parse_arguments():
 
     return parser.parse_args()
 
+
 def convert_to_serializable(obj):
     """Recursively convert NumPy arrays to lists for JSON serialization."""
     if isinstance(obj, np.ndarray):
@@ -81,6 +87,7 @@ def convert_to_serializable(obj):
         return [convert_to_serializable(i) for i in obj]
     else:
         return obj
+
 
 def analyze_combination(directory, detector_model, scenario, detector_data, args):
     """Analyze a specific combination of detector model and scenario."""
@@ -94,7 +101,7 @@ def analyze_combination(directory, detector_model, scenario, detector_data, args
         )
 
     # Get the list of bX identifiers (bunch crossing identifiers)
-    bX_identifiers = detector_data[detector_model][scenario]
+    bX_identifiers = detector_data[detector_model][scenario].keys()
 
     # Determine the number of bunch crossings
     num_bX = len(bX_identifiers)
@@ -102,9 +109,9 @@ def analyze_combination(directory, detector_model, scenario, detector_data, args
     # Prepare file paths
     file_paths = [
         fspath(p)
-        for bX_identifier in bX_identifiers
+        for i, bX_identifier in enumerate(bX_identifiers)
         for p in directory.glob(
-            f"{detector_model}-{scenario}-{bX_identifier}-nEvts_*{edm4hep_file_suffix}"
+            f"{detector_model}/{scenario}_{i + 1}/{detector_model}-{scenario}-{bX_identifier}-nEvts_*-part_*.edm4hep.root"
         )
     ]
 
@@ -122,28 +129,26 @@ def analyze_combination(directory, detector_model, scenario, detector_data, args
     pos, time = handle_cache_operations(
         args.cacheDir, detector_model, scenario, num_bX, file_paths
     )
-        
+
     # Ensure the json_data directory exists
     json_data_dir = directory / "json_data"
     json_data_dir.mkdir(parents=True, exist_ok=True)
 
     # Define the output JSON file path
     json_file_path = json_data_dir / f"{detector_model}_{scenario}_pos.json"
-    dtDir = Path(environ["dtDir"]) 
-    num_bX = int(np.genfromtxt(dtDir / args.version / f"{scenario}_number_of_bx.txt"))
+    dtDir = Path(environ["dtDir"])
 
     data_to_save = {
-    "detector_model": detector_model,
-    "scenario": scenario,
-    "num_bunch_crossings": num_bX,
-    "pos": convert_to_serializable(pos),
-    "time": convert_to_serializable(time),
+        "detector_model": detector_model,
+        "scenario": scenario,
+        "num_bunch_crossings": num_bX,
+        "pos": convert_to_serializable(pos),
+        "time": convert_to_serializable(time),
     }
 
     # Save the dictionary to a JSON file
     with open(json_file_path, "w") as json_file:
         json.dump(data_to_save, json_file, indent=4)
-
 
     plotting(
         pos,
@@ -159,8 +164,7 @@ def analyze_combination(directory, detector_model, scenario, detector_data, args
 
 
 def main():
-    args = parse_arguments()
-
+    args = get_args(parse_arguments)
     # if only version name provided, expanded the path based on 'dtDir' var
     directory = resolve_path_with_env(
         Path(SIM_DATA_SUBDIR_NAME) / args.version, "dtDir"

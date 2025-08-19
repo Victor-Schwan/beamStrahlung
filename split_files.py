@@ -1,5 +1,6 @@
-from pathlib import Path
 import os
+from pathlib import Path
+
 
 def split_hepevt_f1ile(input_file, lines_per_file=5000, output_dir=None):
     input_path = Path(input_file)
@@ -50,9 +51,7 @@ def split_hepevt_file(input_file, lines_per_file=5000, output_dir=None):
             # Once we have enough lines, write them out
             if len(buffer_lines) >= lines_per_file:
                 # Count particle lines (excluding event headers if needed)
-                particle_count = sum(
-                    1 for l in buffer_lines if not l.strip().isdigit()
-                )
+                particle_count = sum(1 for l in buffer_lines if not l.strip().isdigit())
 
                 output_path = output_dir / f"{input_path.stem}_part_{file_index}.hepevt"
                 with output_path.open("w") as outfile:
@@ -64,9 +63,7 @@ def split_hepevt_file(input_file, lines_per_file=5000, output_dir=None):
 
         # Write remaining lines
         if buffer_lines:
-            particle_count = sum(
-                1 for l in buffer_lines if not l.strip().isdigit()
-            )
+            particle_count = sum(1 for l in buffer_lines if not l.strip().isdigit())
             output_path = output_dir / f"{input_path.stem}_part_{file_index}.hepevt"
             with output_path.open("w") as outfile:
                 outfile.write(f"{particle_count}\n")
@@ -75,10 +72,11 @@ def split_hepevt_file(input_file, lines_per_file=5000, output_dir=None):
 
     print(f"Split '{input_path.name}' into {file_index} files in '{output_dir}'")
 
+
 def split_all_hepevt_files_in_dir(lines_per_file=5000, file_pattern="*.hepevt"):
-    dt_dir = os.environ["dtDir"] 
-    base_dir = Path(dt_dir + '/../backgrounds/SR_FCCee/SR_v5_cleaned_kevin')
-    output_base_dir = Path(dt_dir + '/../split_up_SR_files')
+    dt_dir = os.environ["dtDir"]
+    base_dir = Path(dt_dir + "/../backgrounds/SR_FCCee/SR_v5_cleaned_kevin")
+    output_base_dir = Path(dt_dir + "/../split_up_SR_files")
 
     hepevt_files = list(base_dir.glob(file_pattern))
     if not hepevt_files:
@@ -87,6 +85,9 @@ def split_all_hepevt_files_in_dir(lines_per_file=5000, file_pattern="*.hepevt"):
 
     for hepevt_file in hepevt_files:
         sub_output_dir = output_base_dir / hepevt_file.stem
-        split_hepevt_file(hepevt_file, lines_per_file=lines_per_file, output_dir=sub_output_dir)
+        split_hepevt_file(
+            hepevt_file, lines_per_file=lines_per_file, output_dir=sub_output_dir
+        )
+
 
 split_all_hepevt_files_in_dir()

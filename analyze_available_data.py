@@ -16,11 +16,13 @@ Arguments:
     <directory>  Path to the directory containing the detector model files.
 """
 
+import os
 from collections import defaultdict
 from pathlib import Path
 
 from tabulate import tabulate
 
+from det_mod_configs import CHOICES_DETECTOR_MODELS
 from platform_paths import edm4hep_file_suffix
 
 
@@ -40,23 +42,32 @@ def parse_files(directory):
                  scenarios as subkeys, and sets of bX numbers as values.
     """
 
-    detector_data = defaultdict(lambda: defaultdict(set))
+    detector_data = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
 
-    # Iterate over all .edm4hep.root files in the provided directory
-    for file_path in Path(directory).rglob(f"*{edm4hep_file_suffix}"):
-        # Extract components of the filename
-        parts = file_path.stem.split("-")
+    for folder in os.listdir(directory):
+        folder_path = os.path.join(directory, folder)
+        if (
+            os.path.isdir(folder_path) and folder in CHOICES_DETECTOR_MODELS
+        ):  # only look at folders
+            for subfolder in os.listdir(folder_path):
+                bX_number = subfolder.split("_")[-1]
 
-        if len(parts) != 4:
-            continue  # Skip any files that don't match the expected format
+                subfolder_path = os.path.join(folder_path, subfolder)
+                for file_path in (Path(directory) / folder / subfolder).rglob(
+                    "*.edm4hep.root"
+                ):
+                    # Extract components of the filename
+                    parts = file_path.stem.split("-")
+                    if len(parts) != 5:
+                        continue  # Skip any files that don't match the expected format
+                    detector_model = parts[0]
+                    scenario = parts[1]
+                    bX_number = parts[2]
+                    e_number = parts[3].split("_")[-1]
+                    part = parts[4].split("_")[-1].split(".")[0]
 
-        detector_model = parts[0].rstrip("_")
-        scenario = parts[1]
-        bX_number = parts[2]
-        # pylint: disable-next=unused-variable
-        e_number = parts[3].split("_")[-1]  # noqa: F841
-        # Add the bX_Number to the appropriate detector_model and scenario
-        detector_data[detector_model][scenario].add(bX_number)
+                    # Add the bX_Number to the appropriate detector_model and scenario
+                    detector_data[detector_model][scenario][bX_number].add(part)
 
     return detector_data
 
@@ -72,16 +83,20 @@ def sort_detector_data(detector_data):
     Returns:
     sorted_data (defaultdict): A sorted nested defaultdict.
     """
-    sorted_data = defaultdict(lambda: defaultdict(list))
-
+    sorted_data = defaultdict(lambda: defaultdict(lambda: defaultdict(list)))
     # Sort the detector models
     for detector_model in sorted(detector_data.keys()):
         scenarios = detector_data[detector_model]
 
         # Sort scenarios for the current detector model
         for scenario in sorted(scenarios.keys()):
-            bX_numbers = sorted(scenarios[scenario])  # Sort bX_numbers
-            sorted_data[detector_model][scenario] = bX_numbers
+            bX_dict = scenarios[scenario]
+
+            # Sort bX_numbers for the current scenario
+            for bX_number in sorted(bX_dict.keys()):
+                # Sort the parts inside each bX_number
+                sorted_parts = sorted(bX_dict[bX_number])
+                sorted_data[detector_model][scenario][bX_number] = sorted_parts
 
     return sorted_data
 
@@ -103,15 +118,18 @@ def print_detector_info(sorted_detector_data):
 
         # Iterate over the scenarios for the current detector model
         for scenario in scenarios.keys():
-            bX_numbers = scenarios[scenario]
-            num_files = len(bX_numbers)
-            table_data.append([detector_model, scenario, num_files])
+            bX_numbers = scenarios[scenario].keys()
+            num_bX = len(bX_numbers)
+            num_files = 0
+            for bX in bX_numbers:
+                num_files += len(scenarios[scenario][bX])
+            table_data.append([detector_model, scenario, num_bX, num_files])
 
     # Print the table using tabulate
     print(
         tabulate(
             table_data,
-            headers=["Detector Model", "Scenario", "Number of Files"],
+            headers=["Detector Model", "Scenario", "Number of BX", "Number of Files"],
             tablefmt="grid",
         )
     )

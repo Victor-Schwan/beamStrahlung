@@ -80,11 +80,13 @@ sub_det_cols_fcc = {
 
 sub_det_cols_ilc = {
     "vb": HitCollection(
-        root_tree_branch_name="VXDCollection", plot_collection_prefix="Vertex",
+        root_tree_branch_name="VXDCollection",
+        plot_collection_prefix="Vertex",
         only_double_layers=True,
     ),
     "f": HitCollection(
-        root_tree_branch_name="FTDCollection", plot_collection_prefix="Forward",
+        root_tree_branch_name="FTDCollection",
+        plot_collection_prefix="Forward",
         only_double_layers=True,
     ),
 }
