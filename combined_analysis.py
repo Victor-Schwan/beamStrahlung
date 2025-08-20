@@ -139,11 +139,20 @@ def analyze_combination(directory, detector_model, scenario, detector_data, args
     dtDir = Path(environ["dtDir"])
 
     data_to_save = {
+<<<<<<< HEAD
         "detector_model": detector_model,
         "scenario": scenario,
         "num_bunch_crossings": num_bX,
         "pos": convert_to_serializable(pos),
         "time": convert_to_serializable(time),
+=======
+    "detector_model": detector_model,
+    "background": args.background,
+    "scenario": scenario,
+    "num_bunch_crossings": num_bX,
+    "pos": convert_to_serializable(pos),
+    "time": convert_to_serializable(time),
+>>>>>>> ea48d64 (Scaled synchrotron hit rates)
     }
 
     # Save the dictionary to a JSON file

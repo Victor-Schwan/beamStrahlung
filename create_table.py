@@ -5,6 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 from tabulate import tabulate
+from scale_hit_rate import scale_sr_hits
 
 from get_areas import get_areas
 
@@ -13,7 +14,6 @@ subdetector_labels = {
     "ve": "vertex endcap",
 }
 subdetector_areas = get_areas()
-
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
@@ -46,6 +46,7 @@ def extract_hits_per_bx(json_path):
     num_bx = data["num_bunch_crossings"]
     det_mod = data["detector_model"]
     scenario = data["scenario"]
+    background = data["background"]
 
     hits_dict = {}
 
@@ -53,9 +54,9 @@ def extract_hits_per_bx(json_path):
         if subdet == "f":
             continue
         n_hits = len(pos_data["x"])
+        if background == "synchrotron":
+            n_hits = scale_sr_hits(n_hits, scenario)
         label = subdetector_labels.get(subdet, subdet)
-        if det_mod == "ILD_l5_v02":
-            num_bx *= 42 * 5000 / 162616
         hits_dict[label] = n_hits / num_bx / subdetector_areas[det_mod][subdet]
 
     return det_mod, scenario, hits_dict
@@ -84,24 +85,19 @@ def create_table():
 
     # Pivot so each scenario is a separate column
     df = df.pivot_table(
-        index=["Detector Model", "Subdetector", "Background"], aggfunc="first"
+        index=["Detector Model", "Subdetector", "Background"],
+        aggfunc="first"
     ).reset_index()
 
     # Sort the table for clarity
     df = df.sort_values(by=["Detector Model", "Subdetector", "Background"])
 
     if args.version == "synchrotron":
-        desired_order = [
-            "Detector Model",
-            "Subdetector",
-            "Background",
-            "10urad_nzco",
-            "6urad_nzco",
-            "2urad_nzco",
-            "45GeV_halo",
-            "182GeV_halo",
-        ]
-        df = df[desired_order]
+        first_three = df.columns[:3]  # keep first 3 as-is
+        reorder_rest = ["45GeV_halo", "182GeV_halo", "182GeV_nzco_2urad",
+                        "182GeV_nzco_6urad", "182GeV_nzco_10urad"]
+        
+        df = df[list(first_three) + reorder_rest]
 
     return df
 

@@ -13,7 +13,7 @@ def plotting(
     pos_dict: Dict[str, Dict[str, np.ndarray]],
     time_dict: Dict[str, np.ndarray],
     num_bunch_crossings: int = 1,
-    show_plots: bool = True,
+    show_plots: bool = False,
     save_plots: bool = False,
     save_dir: Path | str = None,
     make_theta_hist: bool = False,
@@ -41,6 +41,7 @@ def plotting(
     if det.is_accelerator_fccee():
         sub_det_cols = det.get_sub_detector_collection_info()
         for sub_det_key, sub_det_name in sub_det_cols.items():
+            plt.close("all")
             if det_mod and scenario:
                 common_save_path = save_dir / (
                     f"{sub_det_name.plot_collection_prefix.replace(' ', '_')}_{det_mod}_{scenario}"

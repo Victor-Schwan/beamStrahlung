@@ -38,8 +38,8 @@ CHOICES_SCENARIOS = {
     "beamstrahlung": tuple(bs_data_paths),
 }
 DEFAULT_SCENARIOS = {
-    "synchrotron": ("10urad_nzco",),
-    "beamstrahlung": ("FCC240",),
+    "synchrotron" : ("182GeV_nzco_10urad",),
+    "beamstrahlung" : ("FCC240",),
 }
 
 # Source the setup script (this will be a no-op in Python, since sourcing doesn't propagate in subprocess)
