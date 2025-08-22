@@ -7,7 +7,7 @@ import numpy as np
 from det_mod_configs import detector_model_configurations
 from utils import add_spherical_coordinates_in_place
 from vicbib import BasePlotter
-
+from scale_hit_rate import scale_sr_hits
 
 def plotting(
     pos_dict: Dict[str, Dict[str, np.ndarray]],
@@ -19,6 +19,7 @@ def plotting(
     make_theta_hist: bool = False,
     det_mod: str = "",
     scenario: str = "",
+    background: str = "",
 ) -> None:
     """
     Generate and display plots of position and timing data for various detectors.
@@ -37,18 +38,16 @@ def plotting(
     # Define the limits in millimeters for specific sub-detector keys
     limits = {"vb": 60, "ve": 105}  # Limit in mm for 'vb'  # Limit in mm for 've'
 
+    scale_factor = scale_sr_hits(1, scenario, background)
+
     det = detector_model_configurations[det_mod]
     if det.is_accelerator_fccee():
         sub_det_cols = det.get_sub_detector_collection_info()
         for sub_det_key, sub_det_name in sub_det_cols.items():
             plt.close("all")
             if det_mod and scenario:
-                common_save_path = save_dir / (
-                    f"{sub_det_name.plot_collection_prefix.replace(' ', '_')}_{det_mod}_{scenario}"
-                )
-                common_title = (
-                    f"{sub_det_name.plot_collection_prefix}  {det_mod}@{scenario}"
-                )
+                common_save_path = save_dir / (f"{sub_det_name.plot_collection_prefix.replace(' ', '_')}_{det_mod}_{scenario}")
+                common_title = (f"{sub_det_name.plot_collection_prefix}  {det_mod}@{scenario}")
             else:
                 common_title = sub_det_name.plot_collection_prefix
                 common_save_path = save_dir / common_title
@@ -60,12 +59,9 @@ def plotting(
                 save_plots,
                 common_save_path.with_stem(common_save_path.stem + "_z_positions"),
             )
+
             _, ax = bp.plot()
-            ax.hist(
-                pos_dict[sub_det_key]["z"],
-                bins=50,
-                weights=np.ones_like(pos_dict[sub_det_key]["z"]) / num_bunch_crossings,
-            )
+            ax.hist(pos_dict[sub_det_key]["z"], bins=50, weights=np.ones_like(pos_dict[sub_det_key]["z"]) * scale_factor/ num_bunch_crossings)
             ax.set_title(common_title)
             ax.set_xlabel("Z Position in mm")
             ax.set_ylabel("Avg. hits per BX")
@@ -87,7 +83,7 @@ def plotting(
                 ax.hist(
                     pos_dict[sub_det_key]["theta"],
                     bins=50,
-                    weights=np.ones_like(pos_dict[sub_det_key]["theta"])
+                    weights=np.ones_like(pos_dict[sub_det_key]["theta"]) * scale_factor
                     / num_bunch_crossings,
                 )
                 ax.set_title(common_title)
@@ -106,7 +102,7 @@ def plotting(
             ax.hist(
                 time_dict[sub_det_key],
                 bins=30,
-                weights=np.ones_like(time_dict[sub_det_key]) / num_bunch_crossings,
+                weights=np.ones_like(time_dict[sub_det_key]) * scale_factor / num_bunch_crossings,
             )
             ax.set_title(common_title)
             ax.set_xlabel("Time in ns")
@@ -127,9 +123,7 @@ def plotting(
             fig, ax = bp.plot()
 
             # Compute bin edges to calculate bin area
-            x_bins = np.linspace(
-                -limit_value, limit_value, 51
-            )  # 50 bins means 51 edges
+            x_bins = np.linspace(-limit_value, limit_value, 51)  # 50 bins means 51 edges
             y_bins = np.linspace(-limit_value, limit_value, 51)
 
             # Calculate bin widths and heights
@@ -141,7 +135,7 @@ def plotting(
                 pos_dict[sub_det_key]["x"],
                 pos_dict[sub_det_key]["y"],
                 bins=[x_bins, y_bins],
-                weights=np.ones_like(pos_dict[sub_det_key]["x"]) / num_bunch_crossings,
+                weights=np.ones_like(pos_dict[sub_det_key]["x"]) * scale_factor / num_bunch_crossings,
             )
 
             # Calculate bin area for normalization (area = width * height)

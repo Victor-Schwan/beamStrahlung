@@ -148,7 +148,7 @@ def construct_SR_paths(
             ),
             DESY_NAF_MACHINE_IDENTIFIER: (
                 desy_dust_SR_base_path
-                / "sr_photons_from_positron_182GeVcom_nzco_10urad_v23_mediumfilter/10urad_nzco_#N"
+                / "sr_photons_from_positron_182GeVcom_nzco_10urad_v23_mediumfilter/182GeV_nzco_10urad_#N"
                 if desy_dust_SR_base_path
                 else ""
             ),
@@ -159,7 +159,7 @@ def construct_SR_paths(
             ),
             DESY_NAF_MACHINE_IDENTIFIER: (
                 desy_dust_SR_base_path
-                / "sr_photons_from_positron_182GeVcom_nzco_6urad_v23_mediumfilter/6urad_nzco_#N"
+                / "sr_photons_from_positron_182GeVcom_nzco_6urad_v23_mediumfilter/182GeV_nzco_6urad_#N"
                 if desy_dust_SR_base_path
                 else ""
             ),
@@ -170,7 +170,7 @@ def construct_SR_paths(
             ),
             DESY_NAF_MACHINE_IDENTIFIER: (
                 desy_dust_SR_base_path
-                / "sr_photons_from_positron_182GeVcom_nzco_2urad_v23_mediumfilter/2urad_nzco_#N"
+                / "sr_photons_from_positron_182GeVcom_nzco_2urad_v23_mediumfilter/182GeV_nzco_2urad_#N"
                 if desy_dust_SR_base_path
                 else ""
             ),
