@@ -1,16 +1,15 @@
-import argparse
 import json
 import os
 from pathlib import Path
 
 import pandas as pd
-from scale_hit_rate import scale_sr_hits, get_barrel_occupancy, get_endcap_occupancy
+from get_hits_per_layer import divide_hits
+from scale_hit_rate import scale_hits_dict
 
 subdetector_labels = {
     "vb": "vertex barrel",
     "ve": "vertex endcap",
 }
-subdetector_areas = get_areas()
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
@@ -26,9 +25,9 @@ def parse_arguments():
     parser.add_argument(
         "--unit",
         type=str,
-        default="hit_rate",
-        choices=("hit_rate", "occupancy",),
-        help="The units the values in the table will be given in."
+        default="occupancy",
+        choices=("per_bx", "per_bx_per_mm", "occupancy"),
+        help="The units the values in the table will be given in. Occupancy values are given as percentages"
     )
     return parser.parse_args()
 
@@ -48,26 +47,12 @@ def extract_hits_per_bx(json_path):
     det_mod = data["detector_model"]
     scenario = data["scenario"]
     background = data["background"]
+    hits = data["hits"]
+    divided_hits = divide_hits(hits, det_mod)
 
-    hits_dict = {}
+    results_dict = scale_hits_dict(divided_hits, scenario, background, num_bx, det_mod)[args.unit]
 
-    for subdet, pos_data in data["pos"].items():
-        if subdet == "f":
-            continue
-        label = subdetector_labels.get(subdet, subdet)
-        if args.unit == "hit_rate":
-            n_hits = len(pos_data["z"])
-            n_hits = scale_sr_hits(n_hits, scenario, background)
-            hits_dict[label] = n_hits / num_bx / subdetector_areas[det_mod][subdet]
-        elif subdet == "vb":
-            occupancy = get_barrel_occupancy(pos_data["z"], scenario, background, num_bx)
-            hits_dict[label] = occupancy
-        else:
-            occupancy = get_endcap_occupancy(pos_data["z"], scenario, background, num_bx)
-            hits_dict[label] = occupancy
-
-    return det_mod, scenario, hits_dict
-
+    return det_mod, scenario, results_dict
 
 def create_table():
     json_files = list(json_dir.glob("*.json"))
@@ -110,7 +95,7 @@ def create_table():
 def main():
     df = create_table()
 
-    print(tabulate(df, headers="keys", tablefmt="grid"))
+    #print(tabulate(df, headers="keys", tablefmt="grid"))
 
     latex_table = tabulate(df, headers="keys", tablefmt="latex")
     with open(json_dir / "../background_table.tex", "w") as f:

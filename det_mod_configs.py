@@ -76,6 +76,11 @@ sub_det_cols_fcc = {
         plot_collection_prefix="Vertex Endcap",
         only_double_layers=True,
     ),
+    "tpc": HitCollection(
+        root_tree_branch_name="TPCLowPtCollection",
+        plot_collection_prefix="Time Projection Chamber",
+        only_double_layers=False,
+    )
 }
 
 sub_det_cols_ilc = {

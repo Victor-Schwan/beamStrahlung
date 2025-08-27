@@ -126,7 +126,7 @@ def analyze_combination(directory, detector_model, scenario, detector_data, args
     )
 
     # Get the position and time arrays including caching operations
-    pos, time = handle_cache_operations(
+    hits = handle_cache_operations(
         args.cacheDir, detector_model, scenario, num_bX, file_paths
     )
 
@@ -139,20 +139,11 @@ def analyze_combination(directory, detector_model, scenario, detector_data, args
     dtDir = Path(environ["dtDir"])
 
     data_to_save = {
-<<<<<<< HEAD
-        "detector_model": detector_model,
-        "scenario": scenario,
-        "num_bunch_crossings": num_bX,
-        "pos": convert_to_serializable(pos),
-        "time": convert_to_serializable(time),
-=======
     "detector_model": detector_model,
     "background": args.background,
     "scenario": scenario,
     "num_bunch_crossings": num_bX,
-    "pos": convert_to_serializable(pos),
-    "time": convert_to_serializable(time),
->>>>>>> ea48d64 (Scaled synchrotron hit rates)
+    "hits": convert_to_serializable(hits),
     }
 
     # Save the dictionary to a JSON file
@@ -160,8 +151,7 @@ def analyze_combination(directory, detector_model, scenario, detector_data, args
         json.dump(data_to_save, json_file, indent=4)
 
     plotting(
-        pos,
-        time,
+        hits,
         num_bX,  # Pass the number of bunch crossings
         show_plts,
         save_plots=args.savePlots,

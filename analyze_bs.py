@@ -32,7 +32,6 @@ def get_argument_name_space() -> argparse.Namespace:
     )
     return parser.parse_args()
 
-
 def get_p_n_t(
     file_paths: List[str], detector_model: str
 ) -> Tuple[Dict[str, np.ndarray], Dict[str, np.ndarray]]:
@@ -83,3 +82,48 @@ def get_p_n_t(
             )
 
     return dict(pos_n_t)
+
+def get_hits(file_paths: List[str], detector_model: str) -> Dict[str, Dict[str, np.ndarray]]:
+    """
+    Returns hits as a single dictionary:
+    {
+        'vb': {'x': ..., 'y': ..., 'z': ..., 't': ...},
+        've': {'x': ..., 'y': ..., 'z': ..., 't': ...}
+    }
+    """
+    pos_n_t = defaultdict(lambda: defaultdict(list))
+
+    key_mapping = {
+        ".position.x": "x",
+        ".position.y": "y",
+        ".position.z": "z",
+        ".time": "t",
+    }
+
+    sub_det_cols = detector_model_configurations[detector_model].get_sub_detector_collection_info()
+
+    for sub_det_key, hit_col in sub_det_cols.items():
+        alis = {value: f"{hit_col.root_tree_branch_name}{key}" for key, value in key_mapping.items()}
+
+        for batch in uproot.iterate(
+            [{fp: "events"} for fp in file_paths],
+            list(alis.keys()),
+            library="np",
+            aliases=alis,
+        ):
+            for observable_key in alis.keys():
+                pos_n_t[sub_det_key][observable_key].append(batch[observable_key])
+
+    # Flatten arrays
+    hits = {}
+    for sub_det_key, observables in pos_n_t.items():
+        hits[sub_det_key] = {}
+        for observable_key, arrays in observables.items():
+            # concatenate arrays
+            concatenated_array = np.concatenate(arrays) if len(arrays) > 1 else arrays[0]
+            # flatten nested arrays if needed
+            if isinstance(concatenated_array[0], np.ndarray):
+                concatenated_array = np.concatenate(concatenated_array)
+            hits[sub_det_key][observable_key] = concatenated_array
+
+    return hits

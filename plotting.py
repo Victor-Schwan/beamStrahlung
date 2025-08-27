@@ -10,8 +10,7 @@ from vicbib import BasePlotter
 from scale_hit_rate import scale_sr_hits
 
 def plotting(
-    pos_dict: Dict[str, Dict[str, np.ndarray]],
-    time_dict: Dict[str, np.ndarray],
+    hits: Dict[str, Dict[str, np.ndarray]],
     num_bunch_crossings: int = 1,
     show_plots: bool = False,
     save_plots: bool = False,
@@ -25,9 +24,8 @@ def plotting(
     Generate and display plots of position and timing data for various detectors.
 
     Parameters:
-        pos_dict (Dict[str, Dict[str, np.ndarray]]): Dictionary with detector
-            keys mapping to sub-dictionaries containing position arrays ('x', 'y', 'z').
-        time_dict (Dict[str, np.ndarray]): Dictionary with detector keys mapping to time arrays.
+        hits (Dict[str, Dict[str, np.ndarray]]): Dictionary with detector
+            keys mapping to sub-dictionaries containing position and time arrays ('x', 'y', 'z', 't').
         num_bunch_crossings (int, optional): Number of bunch crossings considered. Default is 1.
         show_plots (bool, optional): Whether to display plots. Default is True.
         save_plots (bool, optional): Whether to save plots. Default is False.
@@ -36,7 +34,7 @@ def plotting(
     """
 
     # Define the limits in millimeters for specific sub-detector keys
-    limits = {"vb": 60, "ve": 105}  # Limit in mm for 'vb'  # Limit in mm for 've'
+    limits = {"vb": 60, "ve": 105, "tpc": 500}  # Limit in mm for 'vb'  # Limit in mm for 've'
 
     scale_factor = scale_sr_hits(1, scenario, background)
 
@@ -61,7 +59,7 @@ def plotting(
             )
 
             _, ax = bp.plot()
-            ax.hist(pos_dict[sub_det_key]["z"], bins=50, weights=np.ones_like(pos_dict[sub_det_key]["z"]) * scale_factor/ num_bunch_crossings)
+            ax.hist(hits[sub_det_key]["z"], bins=50, weights=np.ones_like(hits[sub_det_key]["z"]) * scale_factor/ num_bunch_crossings)
             ax.set_title(common_title)
             ax.set_xlabel("Z Position in mm")
             ax.set_ylabel("Avg. hits per BX")
@@ -71,7 +69,7 @@ def plotting(
 
             # Plot histogram of the theta positions
             if make_theta_hist:
-                add_spherical_coordinates_in_place(pos_dict[sub_det_key])
+                add_spherical_coordinates_in_place(hits[sub_det_key])
 
                 bp = BasePlotter(
                     save_plots,
@@ -81,9 +79,9 @@ def plotting(
                 )
                 _, ax = bp.plot()
                 ax.hist(
-                    pos_dict[sub_det_key]["theta"],
+                    hits[sub_det_key]["theta"],
                     bins=50,
-                    weights=np.ones_like(pos_dict[sub_det_key]["theta"]) * scale_factor
+                    weights=np.ones_like(hits[sub_det_key]["theta"]) * scale_factor
                     / num_bunch_crossings,
                 )
                 ax.set_title(common_title)
@@ -100,9 +98,9 @@ def plotting(
             )
             _, ax = bp.plot()
             ax.hist(
-                time_dict[sub_det_key],
+                hits[sub_det_key]["t"],
                 bins=30,
-                weights=np.ones_like(time_dict[sub_det_key]) * scale_factor / num_bunch_crossings,
+                weights=np.ones_like(hits[sub_det_key]["t"]) * scale_factor / num_bunch_crossings,
             )
             ax.set_title(common_title)
             ax.set_xlabel("Time in ns")
@@ -132,10 +130,10 @@ def plotting(
 
             # Create a 2D histogram and get the value counts
             h, _, _ = np.histogram2d(
-                pos_dict[sub_det_key]["x"],
-                pos_dict[sub_det_key]["y"],
+                hits[sub_det_key]["x"],
+                hits[sub_det_key]["y"],
                 bins=[x_bins, y_bins],
-                weights=np.ones_like(pos_dict[sub_det_key]["x"]) * scale_factor / num_bunch_crossings,
+                weights=np.ones_like(hits[sub_det_key]["x"]) * scale_factor / num_bunch_crossings,
             )
 
             # Calculate bin area for normalization (area = width * height)
