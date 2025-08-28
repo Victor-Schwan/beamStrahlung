@@ -6,11 +6,6 @@ import pandas as pd
 from get_hits_per_layer import divide_hits
 from scale_hit_rate import scale_hits_dict
 
-subdetector_labels = {
-    "vb": "vertex barrel",
-    "ve": "vertex endcap",
-}
-
 def parse_arguments():
     parser = argparse.ArgumentParser(
         description="Creates Table of hit rate for different detector models, scenarios and backgrounds"
@@ -49,7 +44,6 @@ def extract_hits_per_bx(json_path):
     background = data["background"]
     hits = data["hits"]
     divided_hits = divide_hits(hits, det_mod)
-
     results_dict = scale_hits_dict(divided_hits, scenario, background, num_bx, det_mod)[args.unit]
 
     return det_mod, scenario, results_dict
@@ -61,21 +55,23 @@ def create_table():
 
     for json_file in json_files:
         det_mod, scenario, hits = extract_hits_per_bx(json_file)
-        for label, value in hits.items():
-            formated_value = f" {value:.2e}"
-            rows.append({
-                "Detector Model": det_mod,
-                "Subdetector": label,
-                "Background": args.version,
-                scenario: formated_value
-            })
+        for subdet, subdet_hits in hits.items():
+            for layer, value in subdet_hits.items():
+                formated_value = f" {value:.2e}"
+                rows.append({
+                    "Detector Model": det_mod,
+                    "Subdetector": subdet,
+                    "layer": layer,
+                    "Background": args.version,
+                    scenario: formated_value
+                })
 
     # Create a DataFrame
     df = pd.DataFrame(rows)
 
     # Pivot so each scenario is a separate column
     df = df.pivot_table(
-        index=["Detector Model", "Subdetector", "Background"],
+        index=["Detector Model", "Subdetector", "layer", "Background"],
         aggfunc="first"
     ).reset_index()
 
@@ -83,7 +79,7 @@ def create_table():
     df = df.sort_values(by=["Detector Model", "Subdetector", "Background"])
 
     if args.version == "synchrotron":
-        first_three = df.columns[:3]  # keep first 3 as-is
+        first_three = df.columns[:4]  # keep first 3 as-is
         reorder_rest = ["45GeV_halo", "182GeV_halo", "182GeV_nzco_2urad",
                         "182GeV_nzco_6urad", "182GeV_nzco_10urad"]
         
