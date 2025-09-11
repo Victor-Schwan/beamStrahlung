@@ -6,6 +6,7 @@ from pathlib import Path
 import pandas as pd
 from get_hits_per_layer import divide_hits
 from scale_hit_rate import scale_hits_dict
+from plot_hit_rates import plot_hit_rates
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
@@ -25,6 +26,11 @@ def parse_arguments():
         choices=("per_bx", "per_bx_per_mm", "occupancy"),
         help="The units the values in the table will be given in. Occupancy values are given as percentages"
     )
+    parser.add_argument(
+    "--plot_all",
+    action="store_true",
+    help="If given, results are plotted for beamstrahlung and synchrotron radiation. Currently only coded for unit option per_bx_per_mm.",
+      )
     return parser.parse_args()
 
 args = parse_arguments()
@@ -32,7 +38,10 @@ args = parse_arguments()
 dt_dir = os.environ["dtDir"]  # Raises KeyError if not set — use .get() if you want a fallback
 
 # Construct the json_dir path
-json_dir = Path(dt_dir) / args.version / "json_data"
+if args.plot_all:
+    json_dirs = [Path(dt_dir) / "beamstrahlung/json_data", Path(dt_dir) / "synchrotron/json_data"]
+else:
+    json_dirs = [Path(dt_dir) / args.version / "json_data"]
 
 def extract_hits_per_bx(json_path):
     with open(json_path) as f:
@@ -49,7 +58,12 @@ def extract_hits_per_bx(json_path):
     return det_mod, scenario, results_dict
 
 def create_table():
-    json_files = list(json_dir.glob("*.json"))
+    json_files = []
+    for d in json_dirs:
+        json_files.extend(d.glob("*.json"))
+
+    # If you want them in a single Path list (not nested)
+    json_files = list(json_files)
 
     rows = []
 
@@ -57,15 +71,15 @@ def create_table():
         det_mod, scenario, hits = extract_hits_per_bx(json_file)
         for subdet, subdet_hits in hits.items():
             for layer, value in subdet_hits.items():
-                formated_value = f" {value:.2e}"
                 rows.append({
                     "Detector Model": det_mod,
                     "Subdetector": subdet,
                     "layer": layer,
                     "Background": args.version,
-                    scenario: formated_value
+                    scenario: value,
                 })
-
+    if args.plot_all and args.unit == "per_bx_per_mm":
+      plot_hit_rates(rows)
     # Create a DataFrame
     df = pd.DataFrame(rows)
 
@@ -95,7 +109,7 @@ def main():
     #print(tabulate(df, headers="keys", tablefmt="grid"))
 
     latex_table = tabulate(df, headers='keys', tablefmt='latex')
-    with open(json_dir / "../background_table.tex", "w") as f:
+    with open(json_dirs[0] / "../background_table.tex", "w") as f:
         f.write(latex_table)
     markdown_table = tabulate(df, headers='keys', tablefmt='github')
     print(markdown_table)
