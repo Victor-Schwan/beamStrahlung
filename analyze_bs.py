@@ -32,6 +32,7 @@ def get_argument_name_space() -> argparse.Namespace:
     )
     return parser.parse_args()
 
+
 def get_p_n_t(
     file_paths: List[str], detector_model: str
 ) -> Tuple[Dict[str, np.ndarray], Dict[str, np.ndarray]]:
@@ -83,7 +84,10 @@ def get_p_n_t(
 
     return dict(pos_n_t)
 
-def get_hits(file_paths: List[str], detector_model: str) -> Dict[str, Dict[str, np.ndarray]]:
+
+def get_hits(
+    file_paths: List[str], detector_model: str
+) -> Dict[str, Dict[str, np.ndarray]]:
     """
     Returns hits as a single dictionary:
     {
@@ -100,10 +104,15 @@ def get_hits(file_paths: List[str], detector_model: str) -> Dict[str, Dict[str, 
         ".time": "t",
     }
 
-    sub_det_cols = detector_model_configurations[detector_model].get_sub_detector_collection_info()
+    sub_det_cols = detector_model_configurations[
+        detector_model
+    ].get_sub_detector_collection_info()
 
     for sub_det_key, hit_col in sub_det_cols.items():
-        alis = {value: f"{hit_col.root_tree_branch_name}{key}" for key, value in key_mapping.items()}
+        alis = {
+            value: f"{hit_col.root_tree_branch_name}{key}"
+            for key, value in key_mapping.items()
+        }
 
         for batch in uproot.iterate(
             [{fp: "events"} for fp in file_paths],
@@ -120,7 +129,9 @@ def get_hits(file_paths: List[str], detector_model: str) -> Dict[str, Dict[str, 
         hits[sub_det_key] = {}
         for observable_key, arrays in observables.items():
             # concatenate arrays
-            concatenated_array = np.concatenate(arrays) if len(arrays) > 1 else arrays[0]
+            concatenated_array = (
+                np.concatenate(arrays) if len(arrays) > 1 else arrays[0]
+            )
             # flatten nested arrays if needed
             if isinstance(concatenated_array[0], np.ndarray):
                 concatenated_array = np.concatenate(concatenated_array)

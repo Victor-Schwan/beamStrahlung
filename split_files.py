@@ -23,6 +23,7 @@ def _write_hepevt_part(
         outfile.write(f"{particle_count}\n")
         outfile.writelines(buffer_lines)
 
+
 # --- Helper function for writing a HEPEVT chunk ---
 def _write_hepevt_part(
     buffer_lines,

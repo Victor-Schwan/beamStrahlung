@@ -80,7 +80,7 @@ sub_det_cols_fcc = {
         root_tree_branch_name="TPCLowPtCollection",
         plot_collection_prefix="Time Projection Chamber",
         only_double_layers=False,
-    )
+    ),
 }
 
 sub_det_cols_ilc = {
@@ -98,7 +98,7 @@ sub_det_cols_ilc = {
         root_tree_branch_name="TPCLowPtCollection",
         plot_collection_prefix="Time Projection Chamber",
         only_double_layers=False,
-    )
+    ),
 }
 
 

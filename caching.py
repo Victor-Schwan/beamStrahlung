@@ -78,8 +78,8 @@ def handle_cache_operations(
         )
     else:
         # TODO split_pos_n_time only because of legacy reasons, remove
-        #pos, time = split_pos_n_time(get_p_n_t(file_paths, detector_model))
-        #save_to_cache(cache_file, (pos, time))
+        # pos, time = split_pos_n_time(get_p_n_t(file_paths, detector_model))
+        # save_to_cache(cache_file, (pos, time))
         hits = get_hits(file_paths, detector_model)
         save_to_cache(cache_file, hits)
         print(

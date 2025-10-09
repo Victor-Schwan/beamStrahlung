@@ -1,11 +1,12 @@
 import json
 from pathlib import Path
+
 from get_subdet_params import get_params
 
 path_to_v23_reference = Path("../fcc-ee-lattice/reference_parameters.json")
 
-# the halo populations were taken from the full filenames. The nzco were taken from 
-simulated_populations = { 
+# the halo populations were taken from the full filenames. The nzco were taken from
+simulated_populations = {
     "182GeV_nzco_10urad": 1e7,
     "182GeV_nzco_6urad": 1e7,
     "182GeV_nzco_2urad": 1e7,
@@ -23,23 +24,26 @@ bunch_fraction = {
     "nzco": 0.99,
 }
 
+
 def scale_sr_hits(n_hits, scenario, background="synchrotron", num_bx=1):
     if background != "synchrotron":
         return n_hits / num_bx
 
     with open(path_to_v23_reference) as f:
         parameters = json.load(f)
-    
+
     energy, component = scenario.split("_")[:2]
     simulated_population = simulated_populations[scenario]
     bunch_population = parameters[energy_labels[energy]]["BUNCH_POPULATION"]
 
-    scaled_n_hits = n_hits * bunch_population * bunch_fraction[component] / simulated_population 
+    scaled_n_hits = (
+        n_hits * bunch_population * bunch_fraction[component] / simulated_population
+    )
 
     return scaled_n_hits / num_bx
 
+
 def scale_hits_dict(divided_hits, scenario, background, num_bx, det_mod):
-    
     det_params = get_params()[det_mod]
 
     hit_rates = {
@@ -68,7 +72,7 @@ def scale_hits_dict(divided_hits, scenario, background, num_bx, det_mod):
     results_dict = {
         "per_bx": hit_rates,
         "per_bx_per_mm": hit_rates_per_mm,
-        "occupancy": occupancy
+        "occupancy": occupancy,
     }
 
     return results_dict

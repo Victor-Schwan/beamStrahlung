@@ -1,12 +1,14 @@
-import json
-from tabulate import tabulate
 import argparse
+import json
 import os
 from pathlib import Path
 
 import pandas as pd
+from tabulate import tabulate
+
 from get_hits_per_layer import divide_hits
 from scale_hit_rate import scale_hits_dict
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
@@ -24,25 +26,31 @@ def parse_arguments():
         type=str,
         default="occupancy",
         choices=("per_bx", "per_bx_per_mm", "occupancy"),
-        help="The units the values in the table will be given in. Occupancy values are given as percentages"
+        help="The units the values in the table will be given in. Occupancy values are given as percentages",
     )
     parser.add_argument(
-    "--plot_all",
-    action="store_true",
-    help="If given, results are plotted for beamstrahlung and synchrotron radiation. Currently only coded for unit option per_bx_per_mm.",
-      )
+        "--plot_all",
+        action="store_true",
+        help="If given, results are plotted for beamstrahlung and synchrotron radiation. Currently only coded for unit option per_bx_per_mm.",
+    )
     return parser.parse_args()
 
 
 args = parse_arguments()
 
-dt_dir = os.environ["dtDir"]  # Raises KeyError if not set — use .get() if you want a fallback
+dt_dir = os.environ[
+    "dtDir"
+]  # Raises KeyError if not set — use .get() if you want a fallback
 
 # Construct the json_dir path
 if args.plot_all:
-    json_dirs = [Path(dt_dir) / "beamstrahlung/json_data", Path(dt_dir) / "synchrotron/json_data"]
+    json_dirs = [
+        Path(dt_dir) / "beamstrahlung/json_data",
+        Path(dt_dir) / "synchrotron/json_data",
+    ]
 else:
     json_dirs = [Path(dt_dir) / args.version / "json_data"]
+
 
 def extract_hits_per_bx(json_path):
     with open(json_path) as f:
@@ -54,9 +62,12 @@ def extract_hits_per_bx(json_path):
     background = data["background"]
     hits = data["hits"]
     divided_hits = divide_hits(hits, det_mod)
-    results_dict = scale_hits_dict(divided_hits, scenario, background, num_bx, det_mod)[args.unit]
+    results_dict = scale_hits_dict(divided_hits, scenario, background, num_bx, det_mod)[
+        args.unit
+    ]
 
     return det_mod, scenario, results_dict
+
 
 def create_table():
     json_files = []
@@ -73,22 +84,23 @@ def create_table():
         for subdet, subdet_hits in hits.items():
             for layer, value in subdet_hits.items():
                 formated_value = f" {value:.2e}"
-                rows.append({
-                    "Detector Model": det_mod,
-                    "Subdetector": subdet,
-                    "layer": layer,
-                    "Background": args.version,
-                    scenario: value,
-                })
+                rows.append(
+                    {
+                        "Detector Model": det_mod,
+                        "Subdetector": subdet,
+                        "layer": layer,
+                        "Background": args.version,
+                        scenario: value,
+                    }
+                )
     if args.plot_all and args.unit == "per_bx_per_mm":
-      plot_hit_rates(rows)
+        plot_hit_rates(rows)
     # Create a DataFrame
     df = pd.DataFrame(rows)
 
     # Pivot so each scenario is a separate column
     df = df.pivot_table(
-        index=["Detector Model", "Subdetector", "layer", "Background"],
-        aggfunc="first"
+        index=["Detector Model", "Subdetector", "layer", "Background"], aggfunc="first"
     ).reset_index()
 
     # Sort the table for clarity
@@ -96,9 +108,14 @@ def create_table():
 
     if args.version == "synchrotron":
         first_three = df.columns[:4]  # keep first 3 as-is
-        reorder_rest = ["45GeV_halo", "182GeV_halo", "182GeV_nzco_2urad",
-                        "182GeV_nzco_6urad", "182GeV_nzco_10urad"]
-        
+        reorder_rest = [
+            "45GeV_halo",
+            "182GeV_halo",
+            "182GeV_nzco_2urad",
+            "182GeV_nzco_6urad",
+            "182GeV_nzco_10urad",
+        ]
+
         df = df[list(first_three) + reorder_rest]
 
     return df
@@ -107,12 +124,12 @@ def create_table():
 def main():
     df = create_table()
 
-    #print(tabulate(df, headers="keys", tablefmt="grid"))
+    # print(tabulate(df, headers="keys", tablefmt="grid"))
 
-    latex_table = tabulate(df, headers='keys', tablefmt='latex')
+    latex_table = tabulate(df, headers="keys", tablefmt="latex")
     with open(json_dirs[0] / "../background_table.tex", "w") as f:
         f.write(latex_table)
-    markdown_table = tabulate(df, headers='keys', tablefmt='github')
+    markdown_table = tabulate(df, headers="keys", tablefmt="github")
     print(markdown_table)
 
 

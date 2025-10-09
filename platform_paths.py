@@ -142,7 +142,7 @@ def construct_SR_paths(
     )
 
     sr_data_paths = {
-        "182GeV_nzco_10urad": { # 182GeV COM
+        "182GeV_nzco_10urad": {  # 182GeV COM
             KEK_MACHINE_IDENTIFIER: Path(
                 "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
             ),
@@ -153,7 +153,7 @@ def construct_SR_paths(
                 else ""
             ),
         },
-        "182GeV_nzco_6urad": { # 182GeV COM
+        "182GeV_nzco_6urad": {  # 182GeV COM
             KEK_MACHINE_IDENTIFIER: Path(
                 "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
             ),
@@ -164,7 +164,7 @@ def construct_SR_paths(
                 else ""
             ),
         },
-        "182GeV_nzco_2urad": { # 182GeV COM
+        "182GeV_nzco_2urad": {  # 182GeV COM
             KEK_MACHINE_IDENTIFIER: Path(
                 "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
             ),
@@ -289,8 +289,7 @@ def construct_beamstrahlung_paths(
                 "/group/ilc/users/jeans/pairs-ILC250_gt2MeV/E250-SetA.PBeamstr-pairs.GGuineaPig-v1-4-4-gt2MeV.I270000.#N.pairs"
             ),
             DESY_NAF_MACHINE_IDENTIFIER: (
-                desy_dust_beamstrahlung_base_path
-                / "pairs-ILC250_gt2MeV/ILC250_#N"
+                desy_dust_beamstrahlung_base_path / "pairs-ILC250_gt2MeV/ILC250_#N"
                 if desy_dust_beamstrahlung_base_path
                 else ""
             ),
@@ -318,10 +317,11 @@ def construct_beamstrahlung_paths(
 
     return beam_strahlung_data_paths
 
-def construct_paths(
-    desy_dust_home_path, is_executed_on_desy_naf
-):  
-    bs_data_paths = construct_beamstrahlung_paths(desy_dust_home_path, is_executed_on_desy_naf)
+
+def construct_paths(desy_dust_home_path, is_executed_on_desy_naf):
+    bs_data_paths = construct_beamstrahlung_paths(
+        desy_dust_home_path, is_executed_on_desy_naf
+    )
     sr_data_paths = construct_SR_paths(desy_dust_home_path, is_executed_on_desy_naf)
 
     file_extensions = {

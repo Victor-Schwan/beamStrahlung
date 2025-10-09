@@ -1,6 +1,8 @@
 import re
 import xml.etree.ElementTree as ET
+
 from numpy import pi
+
 from det_mod_configs import sub_det_cols_fcc, sub_det_cols_ilc
 
 vertex_xml = "../k4geo/FCCee/CLD/compact/CLD_o2_v07/Vertex_o4_v07_smallBP.xml"

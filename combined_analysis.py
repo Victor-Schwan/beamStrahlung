@@ -139,11 +139,11 @@ def analyze_combination(directory, detector_model, scenario, detector_data, args
     dtDir = Path(environ["dtDir"])
 
     data_to_save = {
-    "detector_model": detector_model,
-    "background": args.background,
-    "scenario": scenario,
-    "num_bunch_crossings": num_bX,
-    "hits": convert_to_serializable(hits),
+        "detector_model": detector_model,
+        "background": args.background,
+        "scenario": scenario,
+        "num_bunch_crossings": num_bX,
+        "hits": convert_to_serializable(hits),
     }
 
     # Save the dictionary to a JSON file
