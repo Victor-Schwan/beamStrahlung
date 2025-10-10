@@ -11,14 +11,11 @@ from det_mod_configs import (
 from platform_paths import (
     DESY_NAF_MACHINE_IDENTIFIER,
     SIM_DATA_SUBDIR_NAME,
-    BGSourceKey,
     code_dir,
     construct_paths,
     desy_dust_home_path,
-    edm4hep_file_suffix,
     get_path_for_current_machine,
     identify_system,
-    resolve_path_with_env,
 )
 from submit_utils_4_simall import submit_job
 

@@ -23,7 +23,6 @@ from pathlib import Path
 from tabulate import tabulate
 
 from det_mod_configs import CHOICES_DETECTOR_MODELS
-from platform_paths import edm4hep_file_suffix
 
 
 def parse_files(directory):

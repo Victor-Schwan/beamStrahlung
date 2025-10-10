@@ -14,7 +14,6 @@ from det_mod_configs import (
 )
 from platform_paths import (
     SIM_DATA_SUBDIR_NAME,
-    edm4hep_file_suffix,
     get_home_directory,
     resolve_path_with_env,
 )
@@ -22,7 +21,6 @@ from plotting import plotting
 from simall import CHOICES_SCENARIOS, DEFAULT_SCENARIOS, get_args
 
 show_plts = False
-SIM_DATA_SUBDIR_NAME = ""
 
 
 def parse_arguments():
