@@ -16,13 +16,12 @@ Arguments:
     <directory>  Path to the directory containing the detector model files.
 """
 
-import os
 from collections import defaultdict
-from pathlib import Path
 
 from tabulate import tabulate
 
 from det_mod_configs import CHOICES_DETECTOR_MODELS
+from platform_paths import edm4hep_file_suffix
 
 
 def parse_files(directory):
@@ -43,22 +42,20 @@ def parse_files(directory):
 
     detector_data = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
 
-    for folder in os.listdir(directory):
-        folder_path = os.path.join(directory, folder)
-        if (
-            os.path.isdir(folder_path) and folder in CHOICES_DETECTOR_MODELS
-        ):  # only look at folders
-            for subfolder in os.listdir(folder_path):
-                bX_number = subfolder.split("_")[-1]
+    for folder in directory.iterdir():
+        if folder.is_dir() and folder.name in CHOICES_DETECTOR_MODELS:
+            for subfolder in folder.iterdir():
+                if not subfolder.is_dir():
+                    continue
 
-                subfolder_path = os.path.join(folder_path, subfolder)
-                for file_path in (Path(directory) / folder / subfolder).rglob(
-                    "*.edm4hep.root"
-                ):
-                    # Extract components of the filename
-                    parts = file_path.stem.split("-")
+                bX_number = subfolder.name.split("_")[-1]
+
+                for file in subfolder.rglob(f"*{edm4hep_file_suffix}"):
+                    parts = file.stem.split("-")
                     if len(parts) != 5:
-                        continue  # Skip any files that don't match the expected format
+                        # Skip any files not matching the expected format
+                        continue
+
                     detector_model = parts[0]
                     scenario = parts[1]
                     bX_number = parts[2]
