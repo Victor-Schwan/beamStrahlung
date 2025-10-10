@@ -1,9 +1,6 @@
-import os
 from pathlib import Path
 
-SR_dir = Path("backgrounds/SR_FCCee/SR_v5_cleaned_kevin/")
-SR_raw_input_dir = os.environ["dtDir"] / SR_dir / "raw_files"
-SR_split_input_dir = os.environ["dtDir"] / SR_dir / "split_files"
+from platform_paths import SR_raw_input_dir, SR_split_input_dir
 
 
 # --- Helper function for writing a HEPEVT chunk ---

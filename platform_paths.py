@@ -116,18 +116,12 @@ def identify_system() -> str:
     return user_to_system[current_user]
 
 
-desy_dust_home_path = Path("/data/dust/user") / environ["USER"]
+SR_dir = Path("backgrounds/SR_FCCee/SR_v5_cleaned_kevin/")
+SR_raw_input_dir = get_path_from_env("dtDir") / SR_dir / "raw_files"
+SR_split_input_dir = get_path_from_env("dtDir") / SR_dir / "split_files"
 
 
-def get_home_directory():
-    if identify_system() == MachineID.DESY_NAF.value:
-        return desy_dust_home_path
-    return Path.home()
-
-
-def construct_SR_paths(
-    desy_dust_home_path, is_executed_on_desy_naf
-) -> Dict[str, Dict[str, Path]]:
+def construct_SR_paths() -> Dict[str, Dict[MachineID, Path]]:
     """
     Returns:
     Dict[str, Dict[str, Path]]: The first key is the background scenario
@@ -135,66 +129,35 @@ def construct_SR_paths(
                     is the path of the data file on the chosen machine.
     """
 
-    desy_dust_SR_base_path = (
-        desy_dust_home_path / "promotion" / "data" / "split_up_SR_files"
-        if is_executed_on_desy_naf
-        else ""
-    )
-
     sr_data_paths = {
-        "182GeV_nzco_10urad": {  # 182GeV COM
-            KEK_MACHINE_IDENTIFIER: Path(
-                "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
-            ),
+        "182GeV_nzco_10urad": {
             DESY_NAF_MACHINE_IDENTIFIER: (
-                desy_dust_SR_base_path
+                SR_split_input_dir
                 / "sr_photons_from_positron_182GeVcom_nzco_10urad_v23_mediumfilter/182GeV_nzco_10urad_#N"
-                if desy_dust_SR_base_path
-                else ""
             ),
         },
-        "182GeV_nzco_6urad": {  # 182GeV COM
-            KEK_MACHINE_IDENTIFIER: Path(
-                "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
-            ),
+        "182GeV_nzco_6urad": {
             DESY_NAF_MACHINE_IDENTIFIER: (
-                desy_dust_SR_base_path
+                SR_split_input_dir
                 / "sr_photons_from_positron_182GeVcom_nzco_6urad_v23_mediumfilter/182GeV_nzco_6urad_#N"
-                if desy_dust_SR_base_path
-                else ""
             ),
         },
-        "182GeV_nzco_2urad": {  # 182GeV COM
-            KEK_MACHINE_IDENTIFIER: Path(
-                "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
-            ),
+        "182GeV_nzco_2urad": {
             DESY_NAF_MACHINE_IDENTIFIER: (
-                desy_dust_SR_base_path
+                SR_split_input_dir
                 / "sr_photons_from_positron_182GeVcom_nzco_2urad_v23_mediumfilter/182GeV_nzco_2urad_#N"
-                if desy_dust_SR_base_path
-                else ""
             ),
         },
         "45GeV_halo": {
-            KEK_MACHINE_IDENTIFIER: Path(
-                "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
-            ),
             DESY_NAF_MACHINE_IDENTIFIER: (
-                desy_dust_SR_base_path
+                SR_split_input_dir
                 / "sr_photons_from_20Mpositron_45GeVcom_halo_v23_mediumfilter/45GeV_halo_#N"
-                if desy_dust_SR_base_path
-                else ""
             ),
         },
         "182GeV_halo": {
-            KEK_MACHINE_IDENTIFIER: Path(
-                "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
-            ),
             DESY_NAF_MACHINE_IDENTIFIER: (
-                desy_dust_SR_base_path
+                SR_split_input_dir
                 / "sr_photons_from_40Mpositron_182GeVcom_halo_v23_mediumfilter/182GeV_halo_#N"
-                if desy_dust_SR_base_path
-                else ""
             ),
         },
     }
@@ -202,9 +165,7 @@ def construct_SR_paths(
     return sr_data_paths
 
 
-def construct_beamstrahlung_paths(
-    desy_dust_home_path: Path,
-) -> Dict[str, Dict[str, Dict[str, Path]]]:
+def construct_beamstrahlung_paths() -> Dict[str, Dict[str, Dict[str, Path]]]:
     """
     Construct a nested dictionary containing paths to beamstrahlung background files.
 
@@ -220,68 +181,8 @@ def construct_beamstrahlung_paths(
     """
 
     desy_dust_beamstrahlung_base_path = (
-        desy_dust_home_path / "promotion" / "data" / "split_up_beamstrahlung_files"
-        if is_executed_on_desy_naf
-        else ""
+        get_path_from_env("dtDir") / "split_up_beamstrahlung_files"
     )
-
-    sr_data_paths = {
-        "182GeVcom_nzco_10urad": {
-            KEK_MACHINE_IDENTIFIER: Path(
-                "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
-            ),
-            DESY_NAF_MACHINE_IDENTIFIER: (
-                desy_dust_SR_base_path
-                / "sr_photons_from_positron_182GeVcom_nzco_10urad_v23_mediumfilter/sr_photons_from_positron_182GeVcom_nzco_10urad_v23_mediumfilter_part_#N.hepevt"
-                if desy_dust_SR_base_path
-                else ""
-            ),
-        },
-        "182GeVcom_nzco_2urad": {
-            KEK_MACHINE_IDENTIFIER: Path(
-                "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
-            ),
-            DESY_NAF_MACHINE_IDENTIFIER: (
-                desy_dust_SR_base_path
-                / "sr_photons_from_positron_182GeVcom_nzco_2urad_v23_mediumfilter/sr_photons_from_positron_182GeVcom_nzco_2urad_v23_mediumfilter_part_#N.hepevt"
-                if desy_dust_SR_base_path
-                else ""
-            ),
-        },
-        "182GeVcom_nzco_6urad": {
-            KEK_MACHINE_IDENTIFIER: Path(
-                "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
-            ),
-            DESY_NAF_MACHINE_IDENTIFIER: (
-                desy_dust_SR_base_path
-                / "sr_photons_from_positron_182GeVcom_nzco_6urad_v23_mediumfilter/sr_photons_from_positron_182GeVcom_nzco_6urad_v23_mediumfilter_part_#N.hepevt"
-                if desy_dust_SR_base_path
-                else ""
-            ),
-        },
-        "20Mpositron_45GeVcom_halo": {
-            KEK_MACHINE_IDENTIFIER: Path(
-                "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
-            ),
-            DESY_NAF_MACHINE_IDENTIFIER: (
-                desy_dust_SR_base_path
-                / "sr_photons_from_20Mpositron_45GeVcom_halo_v23_mediumfilter/sr_photons_from_20Mpositron_45GeVcom_halo_v23_mediumfilter_part_#N.hepevt"
-                if desy_dust_SR_base_path
-                else ""
-            ),
-        },
-        "40Mpositron_45GeVcom_halo": {
-            KEK_MACHINE_IDENTIFIER: Path(
-                "/home/ilc/jeans/tpc-ion/tpc-bspairs/input_allatip/pairs-#N_Z.pairs"
-            ),
-            DESY_NAF_MACHINE_IDENTIFIER: (
-                desy_dust_SR_base_path
-                / "sr_photons_from_40Mpositron_182GeVcom_halo_v23_mediumfilter/sr_photons_from_40Mpositron_182GeVcom_halo_v23_mediumfilter_part_#N.hepevt"
-                if desy_dust_SR_base_path
-                else ""
-            ),
-        },
-    }
 
     beam_strahlung_data_paths = {
         "ILC250": {
@@ -318,11 +219,12 @@ def construct_beamstrahlung_paths(
     return beam_strahlung_data_paths
 
 
-def construct_paths(desy_dust_home_path, is_executed_on_desy_naf):
-    bs_data_paths = construct_beamstrahlung_paths(
-        desy_dust_home_path, is_executed_on_desy_naf
-    )
-    sr_data_paths = construct_SR_paths(desy_dust_home_path, is_executed_on_desy_naf)
+def construct_paths(is_executed_on_desy_naf):
+    bs_data_paths = construct_beamstrahlung_paths()
+
+    if not is_executed_on_desy_naf:
+        raise UnknownSystemError  # SR Paths only on NAF defined
+    sr_data_paths = construct_SR_paths()
 
     file_extensions = {
         "beamstrahlung": "pairs",

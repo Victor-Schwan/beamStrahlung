@@ -14,8 +14,8 @@ from det_mod_configs import (
 )
 from platform_paths import (
     SIM_DATA_SUBDIR_NAME,
-    get_home_directory,
     resolve_path_with_env,
+    get_path_from_env,
 )
 from plotting import plotting
 from simall import CHOICES_SCENARIOS, DEFAULT_SCENARIOS, get_args
@@ -24,8 +24,6 @@ show_plts = False
 
 
 def parse_arguments():
-    homeDir = get_home_directory()
-
     parser = argparse.ArgumentParser(
         description="Combined Analysis of Detector Model Files"
     )
@@ -64,7 +62,7 @@ def parse_arguments():
     )
     parser.add_argument(
         "--cacheDir",
-        default=fspath(homeDir / "promotion/data/bs_cache_combined_analysis"),
+        default=fspath(get_path_from_env("dtDir") / "bs_cache_combined_analysis"),
         type=str,
         help="Directory to store cache files",
     )

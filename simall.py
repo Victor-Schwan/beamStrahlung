@@ -13,9 +13,9 @@ from platform_paths import (
     SIM_DATA_SUBDIR_NAME,
     code_dir,
     construct_paths,
-    desy_dust_home_path,
     get_path_for_current_machine,
     identify_system,
+    get_path_from_env,
 )
 from submit_utils_4_simall import submit_job
 
@@ -23,11 +23,8 @@ is_executed_on_DESY_NAF = identify_system() == DESY_NAF_MACHINE_IDENTIFIER
 
 # define paths for later use
 beamstrahlung_code_dir = code_dir / "beamStrahlung"
-k4geoDir = code_dir / "k4geo"
-out_Dir_base_path = desy_dust_home_path if is_executed_on_DESY_NAF else Path.home()
-bs_data_paths, sr_data_paths, file_extensions = construct_paths(
-    desy_dust_home_path, is_executed_on_DESY_NAF
-)
+k4geoDir = get_path_from_env("k4gDir")
+bs_data_paths, sr_data_paths, file_extensions = construct_paths(is_executed_on_DESY_NAF)
 
 # single source of truth, keys of bs_data_paths become values of tuple
 CHOICES_SCENARIOS = {
@@ -39,8 +36,6 @@ DEFAULT_SCENARIOS = {
     "beamstrahlung": ("FCC240",),
 }
 
-# Source the setup script (this will be a no-op in Python, since sourcing doesn't propagate in subprocess)
-SETUP_SCRIPT_PATH = "/cvmfs/sw-nightlies.hsf.org/key4hep/setup.sh"
 
 # Dict containing the detector model configurations
 det_mod_configs_dict = get_paths_and_detector_configs()
@@ -152,7 +147,7 @@ def check_max_BX_number_exceeded(bs_type_name: str, bunchcrossing: int) -> bool:
     """
     if bs_type_name in {"FCC240", "FCC091"} and bunchcrossing > 450:
         print(
-            f"\nThere are only 100 bunch crossing for {bs_type_name} available",
+            f"\nThere are only 450 bunch crossing for {bs_type_name} available",
             end="\n\n",
         )
         return True
@@ -166,19 +161,13 @@ def check_max_BX_number_exceeded(bs_type_name: str, bunchcrossing: int) -> bool:
 
 
 def save_bX_count(scenario, background, out_dir):
-    first_bx_path = replace_BX_number_in_string(scenario, 1, background)
-    if os.path.exists(first_bx_path):
-        input_folder = os.path.dirname(first_bx_path)
+    first_bx_path = Path(replace_BX_number_in_string(scenario, 1, background))
+    if first_bx_path.exists():
+        input_folder = first_bx_path.parent
         if background == "synchrotron":
             num_bx = 1
         else:
-            num_bx = len(
-                [
-                    f
-                    for f in os.listdir(input_folder)
-                    if os.path.isfile(os.path.join(input_folder, f))
-                ]
-            )
+            num_bx = sum(1 for f in input_folder.iterdir() if f.is_file())
         bx_count_file = out_dir / f"{scenario}_number_of_bx.txt"
         with open(bx_count_file, "w") as f:
             f.write(f"{num_bx}\n")
@@ -196,10 +185,9 @@ def main():
     # # Note: The setup script source cannot affect the Python environment, but we simulate it in case needed.
     # source_setup_script(setupScriptPath)  # This will not affect the Python environment
 
-    print(is_executed_on_DESY_NAF)
     args = get_args()
     parent_out_dir = (
-        out_Dir_base_path / "promotion" / "data" / SIM_DATA_SUBDIR_NAME / args.version
+        Path(get_path_from_env("dtDir")) / SIM_DATA_SUBDIR_NAME / args.version
     )
     parent_out_dir.mkdir(parents=True, exist_ok=True)
 
