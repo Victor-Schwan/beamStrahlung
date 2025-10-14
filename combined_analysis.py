@@ -1,6 +1,6 @@
 import argparse
 import json
-from os import environ, fspath
+from os import fspath
 from pathlib import Path
 
 import numpy as np
@@ -132,7 +132,6 @@ def analyze_combination(directory, detector_model, scenario, detector_data, args
 
     # Define the output JSON file path
     json_file_path = json_data_dir / f"{detector_model}_{scenario}_pos.json"
-    dtDir = Path(environ["dtDir"])
 
     data_to_save = {
         "detector_model": detector_model,

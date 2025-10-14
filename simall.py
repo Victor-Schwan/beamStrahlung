@@ -16,6 +16,7 @@ from platform_paths import (
     get_path_for_current_machine,
     identify_system,
     get_path_from_env,
+    edm4hep_file_suffix,
 )
 from submit_utils_4_simall import submit_job
 
@@ -247,9 +248,9 @@ def main():
                         "--inputFile",
                         str(input_file_path),
                         "--outputFile",
-                        str(out_name.with_suffix(".edm4hep.root")),
                         "--numberOfEvents",
                         str(args.nEvents),
+                        str(out_name.with_suffix(edm4hep_file_suffix)),
                         "--crossingAngleBoost",
                         str(det_mod_configs.get_crossing_angle()),
                     ]

@@ -13,6 +13,11 @@ from typing import Dict
 
 edm4hep_file_suffix = ".edm4hep.root"
 
+file_extensions = {
+    "beamstrahlung": "pairs",
+    "synchrotron": "hepevt",
+}
+
 
 class BGSourceKey(str, Enum):
     """Background source keys."""
@@ -225,11 +230,6 @@ def construct_paths(is_executed_on_desy_naf):
     if not is_executed_on_desy_naf:
         raise UnknownSystemError  # SR Paths only on NAF defined
     sr_data_paths = construct_SR_paths()
-
-    file_extensions = {
-        "beamstrahlung": "pairs",
-        "synchrotron": "hepevt",
-    }
 
     return bs_data_paths, sr_data_paths, file_extensions
 
