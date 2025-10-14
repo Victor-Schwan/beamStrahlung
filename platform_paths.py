@@ -138,31 +138,31 @@ def construct_SR_paths() -> Dict[str, Dict[MachineID, Path]]:
         "182GeV_nzco_10urad": {
             DESY_NAF_MACHINE_IDENTIFIER: (
                 SR_split_input_dir
-                / "sr_photons_from_positron_182GeVcom_nzco_10urad_v23_mediumfilter/182GeV_nzco_10urad_#N"
+                / "sr_photons_from_positron_182GeVcom_nzco_10urad_v23_mediumfilter"
             ),
         },
         "182GeV_nzco_6urad": {
             DESY_NAF_MACHINE_IDENTIFIER: (
                 SR_split_input_dir
-                / "sr_photons_from_positron_182GeVcom_nzco_6urad_v23_mediumfilter/182GeV_nzco_6urad_#N"
+                / "sr_photons_from_positron_182GeVcom_nzco_6urad_v23_mediumfilter"
             ),
         },
         "182GeV_nzco_2urad": {
             DESY_NAF_MACHINE_IDENTIFIER: (
                 SR_split_input_dir
-                / "sr_photons_from_positron_182GeVcom_nzco_2urad_v23_mediumfilter/182GeV_nzco_2urad_#N"
+                / "sr_photons_from_positron_182GeVcom_nzco_2urad_v23_mediumfilter"
             ),
         },
         "45GeV_halo": {
             DESY_NAF_MACHINE_IDENTIFIER: (
                 SR_split_input_dir
-                / "sr_photons_from_20Mpositron_45GeVcom_halo_v23_mediumfilter/45GeV_halo_#N"
+                / "sr_photons_from_20Mpositron_45GeVcom_halo_v23_mediumfilter"
             ),
         },
         "182GeV_halo": {
             DESY_NAF_MACHINE_IDENTIFIER: (
                 SR_split_input_dir
-                / "sr_photons_from_40Mpositron_182GeVcom_halo_v23_mediumfilter/182GeV_halo_#N"
+                / "sr_photons_from_40Mpositron_182GeVcom_halo_v23_mediumfilter"
             ),
         },
     }
