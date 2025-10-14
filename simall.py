@@ -248,8 +248,6 @@ def main():
                         "--inputFile",
                         str(input_file_path),
                         "--outputFile",
-                        "--numberOfEvents",
-                        str(args.nEvents),
                         str(out_name.with_suffix(edm4hep_file_suffix)),
                         "--crossingAngleBoost",
                         str(det_mod_configs.get_crossing_angle()),
@@ -268,13 +266,16 @@ def main():
                         # Use the provided particles per event for non-"ILC" scenarios
                         particles_per_event = str(args.guineaPigPartPerE)
 
-                    # Add particles per event argument
-                    arguments.extend(
-                        [
-                            "--guineapig.particlesPerEvent",
-                            particles_per_event,
-                        ]
-                    )
+                    if args.background == "beamstrahlung":
+                        # Add particles per event argument
+                        arguments.extend(
+                            [
+                                "--numberOfEvents",
+                                str(args.nEvents),
+                                "--guineapig.particlesPerEvent",
+                                particles_per_event,
+                            ]
+                        )
 
                     # Decide whether to use Condor or bsub
                     batch_system = "condor" if is_executed_on_DESY_NAF else "bsub"
