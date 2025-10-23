@@ -32,6 +32,7 @@ import re
 from pathlib import Path
 
 from tabulate import tabulate
+from platform_paths import edm4hep_file_suffix
 
 # === Configuration constants ===
 N_ZERO_PADDING_BX = 4
@@ -188,10 +189,52 @@ def validate_scenario_structure(scenario_folder: Path, suffix: str) -> bool:
     return valid
 
 
-def main():
+########################################################################
+# interactive part, if this script is directly called
+########################################################################
+
+
+def check_substructure(user_input):
+    user_path = Path(user_input)
+
+    if not user_path.is_dir():
+        print(f"The path {user_path} does not exist or is not a directory.")
+        return False
+
+    if validate_scenario_structure(user_path, edm4hep_file_suffix):
+        print("The given path seems to fulfil the structure.")
+    else:
+        print("The given path does not stick to the standard structure!")
+
+
+def interactive_shell():
     from IPython import embed
 
     embed()
+
+
+def main():
+    while True:
+        # Ask user for a path
+        user_input = input(
+            "Enter a path to check (or 'exit' to quit, 'shell' for interactive shell): "
+        )
+
+        if user_input.lower() == "exit":
+            print("Exiting script.")
+            break
+        elif user_input.lower() == "shell":
+            interactive_shell()
+            continue
+
+        # Check if the path exists and if it meets the required structure
+        if check_substructure(user_input):
+            action = input("Do you want to check another path? (yes/no): ").lower()
+            if action != "yes":
+                print("Ending script.")
+                break
+        else:
+            print("Please try again with a valid path.")
 
 
 if __name__ == "__main__":
