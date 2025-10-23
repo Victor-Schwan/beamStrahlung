@@ -102,16 +102,20 @@ def collect_all_parts(
     bx_folders = discover_bx_folders(scenario_folder)
 
     bx_to_parts: dict[int, list[Path]] = {}
+    bad_bx_folders = []
     for bx_index, bx_folder in enumerate(bx_folders, start=1):
         parts = discover_parts_in_bx(bx_folder, suffix)
         if not parts:
-            print(f"Warning: no part files found in {bx_folder}")
+            bad_bx_folders.append(bx_folder.name)
             continue
 
         if debug:
             parts = parts[:max_debug_parts]
 
         bx_to_parts[bx_index] = parts
+
+    if bad_bx_folders:
+        print(f"Warning: no part files found in {bad_bx_folders}")
 
     if debug and len(bx_to_parts) > max_debug_bx:
         bx_to_parts = {k: v for k, v in list(bx_to_parts.items())[:max_debug_bx]}
@@ -157,6 +161,23 @@ def validate_scenario_structure(scenario_folder: Path, suffix: str) -> bool:
         rows.append([bx_folder.name, n_parts, example])
         if n_parts == 0:
             valid = False
+
+    # if more than 24 entries, print only first, middle and last 7 rows
+    l_rows = len(rows)
+    if l_rows > 24:
+        blind_row = [
+            [
+                "...",
+            ]
+            * 3
+        ]
+        rows = (
+            rows[0:7]
+            + blind_row
+            + rows[l_rows // 2 - 3 : l_rows // 2 + 4]
+            + blind_row
+            + rows[-7:]
+        )
 
     table = tabulate(
         rows, headers=["BX folder", "#parts", "Example file"], tablefmt="grid"
