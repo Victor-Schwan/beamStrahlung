@@ -15,8 +15,8 @@ from sys import version_info, version
 edm4hep_file_suffix = ".edm4hep.root"
 
 file_extensions = {
-    "beamstrahlung": "pairs",
-    "synchrotron": "hepevt",
+    "beamstrahlung": ".pairs",
+    "synchrotron": ".hepevt",
 }
 
 # type hints with | require at least python 3.10
