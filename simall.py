@@ -18,6 +18,7 @@ from platform_paths import (
     file_extensions,
 )
 from submit_utils_4_simall import submit_job
+from scenario_folder_utils import collect_all_parts, BX_PREFIX, N_ZERO_PADDING_BX
 
 is_executed_on_DESY_NAF = identify_system() == DESY_NAF_MACHINE_IDENTIFIER
 
@@ -166,128 +167,102 @@ def main():
         if key in args.detectorModel
     }
 
-    # Iterate over the beam strahlung scenarios
     for scenario_name in args.scenario:
-        # used to be input file path and might still be file path for bs
         input_folder_path = get_path(scenario_name, args.background)
-        n_in_files = (
-            sum(1 for p in input_folder_path.iterdir() if p.is_file())
-            if args.background == "synchrotron"
-            else args.bunchCrossingEnd + 1
+        bx_to_parts = collect_all_parts(
+            input_folder_path,
+            file_extensions[args.background],
+            debug=args.debug,
         )
 
-        # Debug mode: process only two input files
-        if args.debug:
-            if n_in_files > 2:
-                n_in_files = 2
+        print(f"\nProcessing scenario '{scenario_name}' with {len(bx_to_parts)} BXs")
 
-        print(f"{n_in_files} input files found for scenario: {scenario_name}")
+        # Iterate over each bunch crossing (BX) and its corresponding split part files
+        for bx_index, part_files in bx_to_parts.items():
+            print(f"  BX {bx_index:0{N_ZERO_PADDING_BX}d}: {len(part_files)} parts")
 
-        # loop over different input files corresponding to one background + scenario
-        # loop over file paths nicer, when bs also always split
-        for bunchcrossing in range(1, n_in_files + 1):
-            if args.background == "beamstrahlung":
-                # folder path used to be a file path here for bs
-                folder_path_with_bX = replace_BX_number_in_string(
-                    bunchcrossing, input_folder_path
-                )
-                input_file_path = folder_path_with_bX
-            else:
-                sr_file_suffix = (
-                    f"_part_{bunchcrossing}.{file_extensions['synchrotron']}"
-                )
-                folder_path_with_bX = input_folder_path
-                input_file_path = [
-                    p
-                    for p in input_folder_path.iterdir()
-                    if p.is_file() and p.name.endswith(sr_file_suffix)
-                ]
-                if len(input_file_path) != 1:
-                    raise FileNotFoundError(
-                        f"Expected exactly one file ending with '{sr_file_suffix}'"
+            # Process each split part file within this BX
+            for part_file in part_files:
+                if not part_file.exists():
+                    print(f"    Missing part file: {part_file}")
+                    continue
+
+                # Loop over all selected detector models
+                for (
+                    det_mod_name,
+                    det_mod_configs,
+                ) in det_mod_configs_dict_filtered.items():
+                    # Create output directory for this detector & BX
+                    out_dir = (
+                        parent_out_dir
+                        / det_mod_name
+                        / f"{scenario_name}_{BX_PREFIX}{bx_index:0{N_ZERO_PADDING_BX}d}"
                     )
-                input_file_path = input_file_path[0]  # to avoid to confuse the linter
+                    out_dir.mkdir(parents=True, exist_ok=True)
 
-            if not input_file_path.exists():
-                print(
-                    f"\nThere are only {bunchcrossing - 1} files for {scenario_name} available",
-                    end="\n\n",
-                )
-                break
+                    # Output file base name (preserves part info)
+                    part_stem = part_file.stem  # e.g. scenario_BX_0001_part_0001
+                    out_name = out_dir / f"{det_mod_name}-{part_stem}"
 
-            if args.debug:
-                print(f"Input file path: {input_file_path}\n")
+                    if args.debug:
+                        print(
+                            f"Output file name: {out_name.with_suffix(edm4hep_file_suffix)}"
+                        )
 
-            # Iterate over the detector models
-            for det_mod_name, det_mod_configs in det_mod_configs_dict_filtered.items():
-                out_dir = (
-                    parent_out_dir / det_mod_name / f"{scenario_name}_{bunchcrossing}"
-                )
+                    # Define the DDSim executable and arguments for this detector & part file
+                    executable = "ddsim"
+                    arguments = [
+                        "--steeringFile",
+                        str(
+                            beamstrahlung_code_dir / "ddsim_keep_microcurlers_10MeV.py"
+                        ),
+                        "--compactFile",
+                        str(k4geoDir / det_mod_configs.get_compact_file_path()),
+                        "--inputFile",
+                        str(part_file),
+                        "--outputFile",
+                        str(out_name.with_suffix(edm4hep_file_suffix)),
+                        "--crossingAngleBoost",
+                        str(det_mod_configs.get_crossing_angle()),
+                    ]
 
-                out_dir.mkdir(parents=True, exist_ok=True)
+                    if det_mod_configs.is_accelerator_ilc:
+                        # increased resources needed
+                        more_resources = True
+                        # Determine particles per event value for "ILC" scenario
+                        particles_per_event = (
+                            str(args.guineaPigPartPerE)
+                            if 1 <= args.guineaPigPartPerE <= 5000
+                            else str(5000)
+                        )
+                    else:
+                        # Use the provided particles per event for non-"ILC" scenarios
+                        particles_per_event = str(args.guineaPigPartPerE)
 
-                # Construct the output file names
-                out_name = (
-                    out_dir
-                    / f"{det_mod_name}-{scenario_name}-{'part' if args.background == 'synchrotron' else f'nEvts_{args.nEvents}-bX'}_{str(bunchcrossing).zfill(4)}"
-                )
-                if args.debug:
-                    print(
-                        f"Output file name: {out_name.with_suffix(edm4hep_file_suffix)}"
+                    if args.background == "beamstrahlung":
+                        # Add particles per event argument
+                        arguments.extend(
+                            [
+                                "--numberOfEvents",
+                                str(args.nEvents),
+                                "--guineapig.particlesPerEvent",
+                                particles_per_event,
+                            ]
+                        )
+
+                    # Decide whether to use Condor or bsub
+                    batch_system = "condor" if is_executed_on_DESY_NAF else "bsub"
+
+                    # Submit the job using the appropriate batch system
+                    submit_job(
+                        batch_system,
+                        arguments,
+                        out_name,
+                        args.submit_jobs,
+                        beamstrahlung_code_dir,
+                        executable,
+                        more_rscrs=more_resources,
                     )
-
-                # Define the executable and arguments separately
-                executable = "ddsim"
-                arguments = [
-                    "--steeringFile",
-                    str(beamstrahlung_code_dir / "ddsim_keep_microcurlers_10MeV.py"),
-                    "--compactFile",
-                    str(k4geoDir / det_mod_configs.get_compact_file_path()),
-                    "--inputFile",
-                    str(input_file_path),
-                    "--outputFile",
-                    str(out_name.with_suffix(edm4hep_file_suffix)),
-                    "--crossingAngleBoost",
-                    str(det_mod_configs.get_crossing_angle()),
-                ]
-
-                if det_mod_configs.is_accelerator_ilc:
-                    # increased resources needed
-                    more_resources = True
-                    # Determine particles per event value for "ILC" scenario
-                    particles_per_event = (
-                        str(args.guineaPigPartPerE)
-                        if 1 <= args.guineaPigPartPerE <= 5000
-                        else str(5000)
-                    )
-                else:
-                    # Use the provided particles per event for non-"ILC" scenarios
-                    particles_per_event = str(args.guineaPigPartPerE)
-
-                if args.background == "beamstrahlung":
-                    # Add particles per event argument
-                    arguments.extend(
-                        [
-                            "--numberOfEvents",
-                            str(args.nEvents),
-                            "--guineapig.particlesPerEvent",
-                            particles_per_event,
-                        ]
-                    )
-
-                # Decide whether to use Condor or bsub
-                batch_system = "condor" if is_executed_on_DESY_NAF else "bsub"
-
-                # Submit the job using the appropriate batch system
-                submit_job(
-                    batch_system,
-                    arguments,
-                    out_name,
-                    args.submit_jobs,
-                    beamstrahlung_code_dir,
-                    executable,
-                    more_rscrs=more_resources,
-                )
 
 
 if __name__ == "__main__":
