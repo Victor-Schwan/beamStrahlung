@@ -10,6 +10,7 @@ from enum import Enum
 from os import environ
 from pathlib import Path
 from typing import Dict
+from sys import version_info, version
 
 edm4hep_file_suffix = ".edm4hep.root"
 
@@ -17,6 +18,12 @@ file_extensions = {
     "beamstrahlung": "pairs",
     "synchrotron": "hepevt",
 }
+
+# type hints with | require at least python 3.10
+if version_info < (3, 10):
+    raise RuntimeError(
+        "Python 3.10 or later is required. You are using Python " + version
+    )
 
 
 class BGSourceKey(str, Enum):
