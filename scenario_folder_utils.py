@@ -107,7 +107,7 @@ def collect_all_parts(
     for bx_index, bx_folder in enumerate(bx_folders, start=1):
         parts = discover_parts_in_bx(bx_folder, suffix)
         if not parts:
-            bad_bx_folders.append(bx_folder.name)
+            bad_bx_folders.append(str(bx_folder.relative_to(scenario_folder.parent)))
             continue
 
         if debug:
