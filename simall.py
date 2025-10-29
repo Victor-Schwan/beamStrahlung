@@ -57,8 +57,8 @@ def parse_arguments():
     parser.add_argument(
         "--nEvents",
         type=int,
-        default=5000,
-        help="Number of events to simulate (default: 5000)",
+        default=1,
+        help="Number of events to simulate (default: 1)",
     )
 
     parser.add_argument(
