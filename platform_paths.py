@@ -128,15 +128,9 @@ def identify_system() -> str:
     return user_to_system[current_user]
 
 
-# SR directory setup
-# DESY configuration
 SR_dir = Path("backgrounds/SR_FCCee/SR_v5_cleaned_kevin/")
 SR_raw_input_dir = get_path_from_env("dtDir") / SR_dir / "raw_files"
 SR_split_input_dir = get_path_from_env("dtDir") / SR_dir / "split_files"
-
-# KEK configuration
-SR_dir_kek = Path("/gpfs/group/ilc/users/jeans/backgrounds/SR/SR_FCCee")
-SR_raw_input_dir_kek = SR_dir_kek / "SR_v5_cleaned_kevin" / "raw_files"
 
 
 def construct_SR_paths() -> Dict[str, Dict[MachineID, Path]]:
@@ -153,18 +147,10 @@ def construct_SR_paths() -> Dict[str, Dict[MachineID, Path]]:
                 SR_split_input_dir
                 / "sr_photons_from_positron_182GeVcom_nzco_10urad_v23_mediumfilter"
             ),
-            KEK_MACHINE_IDENTIFIER: (
-                SR_raw_input_dir_kek
-                / "sr_photons_from_positron_182GeVcom_nzco_10urad_v23_mediumfilter"
-            ),
         },
         "182GeV_nzco_6urad": {
             DESY_NAF_MACHINE_IDENTIFIER: (
                 SR_split_input_dir
-                / "sr_photons_from_positron_182GeVcom_nzco_6urad_v23_mediumfilter"
-            ),
-            KEK_MACHINE_IDENTIFIER: (
-                SR_raw_input_dir_kek
                 / "sr_photons_from_positron_182GeVcom_nzco_6urad_v23_mediumfilter"
             ),
         },
@@ -173,28 +159,16 @@ def construct_SR_paths() -> Dict[str, Dict[MachineID, Path]]:
                 SR_split_input_dir
                 / "sr_photons_from_positron_182GeVcom_nzco_2urad_v23_mediumfilter"
             ),
-            KEK_MACHINE_IDENTIFIER: (
-                SR_raw_input_dir_kek
-                / "sr_photons_from_positron_182GeVcom_nzco_2urad_v23_mediumfilter"
-            ),
         },
         "45GeV_halo": {
             DESY_NAF_MACHINE_IDENTIFIER: (
                 SR_split_input_dir
                 / "sr_photons_from_20Mpositron_45GeVcom_halo_v23_mediumfilter"
             ),
-            KEK_MACHINE_IDENTIFIER: (
-                SR_raw_input_dir_kek
-                / "sr_photons_from_20Mpositron_45GeVcom_halo_v23_mediumfilter"
-            ),
         },
         "182GeV_halo": {
             DESY_NAF_MACHINE_IDENTIFIER: (
                 SR_split_input_dir
-                / "sr_photons_from_40Mpositron_182GeVcom_halo_v23_mediumfilter"
-            ),
-            KEK_MACHINE_IDENTIFIER: (
-                SR_raw_input_dir_kek
                 / "sr_photons_from_40Mpositron_182GeVcom_halo_v23_mediumfilter"
             ),
         },
