@@ -53,8 +53,6 @@ class DetectorConfig:
         return self.sub_detector_collections
 
 
-FCC_crossing_angle_boost = 15.0e-3
-ILC_crossing_angle_boost = 7.0e-3
 ild4FCC_dir = Path("FCCee") / "ILD_FCCee" / "compact"
 ild4ILC_dir = Path("ILD") / "compact" / "ILD_sl5_v02"
 

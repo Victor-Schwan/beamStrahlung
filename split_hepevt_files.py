@@ -134,11 +134,6 @@ def main():
     Iterate over all scenario folders in SR_raw_input_dir.
     Each scenario is assumed to have multiple HEPEVT files (one per BX).
     """
-    from IPython import embed
-    import time
-
-    embed()
-    time.sleep(1)
     for raw_scenario_dir in sorted(SR_raw_input_dir.iterdir()):
         if not raw_scenario_dir.is_dir():
             continue
