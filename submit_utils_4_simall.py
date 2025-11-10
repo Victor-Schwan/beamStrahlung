@@ -25,10 +25,10 @@ def submit_job(
             "environment": '"k4gDir=$ENV(k4gDir) codeDir=$ENV(codeDir)"',
         }
         if more_rscrs:
-            condor_params["request_memory"] = 32768
+            condor_params["request_memory"] = 4096
             condor_params["request_runtime"] = 21600
         else:
-            condor_params["request_memory"] = 4096
+            condor_params["request_memory"] = 2048
 
         # Create the script content using the dictionary
         condor_script_content = (
