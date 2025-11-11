@@ -14,10 +14,12 @@ from det_mod_configs import (
 )
 from platform_paths import (
     SIM_DATA_SUBDIR_NAME,
+    edm4hep_file_suffix,
     get_path_from_env,
     resolve_path_with_env,
 )
 from plotting import plotting
+from scenario_folder_utils import collect_all_parts
 from simall import CHOICES_SCENARIOS, DEFAULT_SCENARIOS, get_args
 
 show_plts = False
@@ -103,13 +105,10 @@ def analyze_combination(directory, detector_model, scenario, detector_data, args
     num_bX = len(bX_identifiers)
 
     # Prepare file paths
-    file_paths = [
-        fspath(p)
-        for i, bX_identifier in enumerate(bX_identifiers)
-        for p in directory.glob(
-            f"{detector_model}/{scenario}_{i + 1}/{detector_model}-{scenario}-{bX_identifier}-nEvts_*-part_*.edm4hep.root"
-        )
-    ]
+    file_paths_nested = collect_all_parts(
+        directory / detector_model / scenario, edm4hep_file_suffix
+    )
+    file_paths = [fspath(path) for lst in file_paths_nested.values() for path in lst]
 
     # Print current combination in a grid table format
     table_data = [[detector_model, scenario, num_bX]]

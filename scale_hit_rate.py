@@ -2,8 +2,11 @@ import json
 from pathlib import Path
 
 from get_subdet_params import get_params
+from platform_paths import resolve_path_with_env
 
-path_to_v23_reference = Path("../fcc-ee-lattice/reference_parameters.json")
+path_to_v23_reference = resolve_path_with_env(
+    Path("fcc-ee-lattice/reference_parameters.json"), "codeDir"
+)
 
 # the halo populations were taken from the full filenames. The nzco were taken from
 simulated_populations = {

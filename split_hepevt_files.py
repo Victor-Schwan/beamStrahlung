@@ -1,6 +1,11 @@
 from pathlib import Path
 
-from platform_paths import SR_raw_input_dir, SR_split_input_dir
+from platform_paths import (
+    SR_raw_input_dir,
+    SR_split_input_dir,
+    construct_SR_paths,
+    flatten_bg_paths,
+)
 from scenario_folder_utils import (
     BX_PREFIX,
     N_ZERO_PADDING_BX,
@@ -14,7 +19,7 @@ from scenario_folder_utils import (
 # Helper: write one HEPEVT chunk into a part file
 # ================================================================
 def _write_hepevt_part(
-    buffer_lines, bx_output_dir, scenario_name, bx_index, part_index
+    buffer_lines, bx_output_dir, scenario_name, bx_index, part_index, flat_sr_paths_dict
 ):
     """
     Writes one buffered HEPEVT part file into the BX output directory.
@@ -22,7 +27,7 @@ def _write_hepevt_part(
     """
     particle_count = sum(1 for L in buffer_lines if not L.strip().isdigit())
     output_name = (
-        f"{scenario_name}_{BX_PREFIX}{bx_index:0{N_ZERO_PADDING_BX}d}_"
+        f"{flat_sr_paths_dict[scenario_name]}-{BX_PREFIX}{bx_index:0{N_ZERO_PADDING_BX}d}-"
         f"{PART_PREFIX}{part_index:0{N_ZERO_PADDING_PART}d}.hepevt"
     )
     output_path = bx_output_dir / output_name
@@ -38,7 +43,12 @@ def _write_hepevt_part(
 # Split one HEPEVT file into part files (one BX)
 # ================================================================
 def split_hepevt_file(
-    input_file, bx_output_dir, scenario_name, bx_index, lines_per_file=5000
+    input_file,
+    bx_output_dir,
+    scenario_name,
+    bx_index,
+    flat_sr_paths_dict,
+    lines_per_file=5000,
 ):
     """
     Split a single HEPEVT input file (representing one BX) into part files.
@@ -70,13 +80,23 @@ def split_hepevt_file(
             buffer_lines.append(line)
             if len(buffer_lines) >= lines_per_file:
                 part_index = _write_hepevt_part(
-                    buffer_lines, bx_output_dir, scenario_name, bx_index, part_index
+                    buffer_lines,
+                    bx_output_dir,
+                    scenario_name,
+                    bx_index,
+                    part_index,
+                    flat_sr_paths_dict,
                 )
                 buffer_lines.clear()
 
         if buffer_lines:
             part_index = _write_hepevt_part(
-                buffer_lines, bx_output_dir, scenario_name, bx_index, part_index
+                buffer_lines,
+                bx_output_dir,
+                scenario_name,
+                bx_index,
+                part_index,
+                flat_sr_paths_dict,
             )
 
     print(
@@ -114,6 +134,8 @@ def split_all_hepevt_files_in_scenario(
 
     print(f"Splitting scenario '{scenario_name}' with {n_bx} BX files...")
 
+    flat_sr_paths = flatten_bg_paths(construct_SR_paths())
+
     for bx_index, (input_file, bx_output_dir) in enumerate(
         zip(input_files, bx_dirs), start=1
     ):
@@ -122,6 +144,7 @@ def split_all_hepevt_files_in_scenario(
             bx_output_dir,
             scenario_name,
             bx_index,
+            flat_sr_paths,
             lines_per_file=lines_per_file,
         )
 

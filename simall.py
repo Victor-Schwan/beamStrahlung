@@ -141,10 +141,6 @@ def get_path(type_name: str, background: str) -> Path:
     return get_path_for_current_machine(data_paths[type_name])
 
 
-def replace_BX_number_in_string(BX_n: int, path: Path) -> Path:
-    return Path(str(path).replace("#N", str(BX_n).zfill(4)))
-
-
 def main():
     # # Function to simulate sourcing (can only be done inside the same shell process)
     # def source_setup_script(script):
@@ -196,7 +192,8 @@ def main():
                     out_dir = (
                         parent_out_dir
                         / det_mod_name
-                        / f"{scenario_name}_{BX_PREFIX}{bx_index:0{N_ZERO_PADDING_BX}d}"
+                        / f"{scenario_name}"
+                        / f"{BX_PREFIX}{bx_index:0{N_ZERO_PADDING_BX}d}"
                     )
                     out_dir.mkdir(parents=True, exist_ok=True)
 

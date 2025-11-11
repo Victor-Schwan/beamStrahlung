@@ -52,15 +52,14 @@ def parse_files(directory):
 
                 for file in subfolder.rglob(f"*{edm4hep_file_suffix}"):
                     parts = file.stem.split("-")
-                    if len(parts) != 5:
+                    if len(parts) != 4:
                         # Skip any files not matching the expected format
                         continue
 
                     detector_model = parts[0]
                     scenario = parts[1]
                     bX_number = parts[2]
-                    e_number = parts[3].split("_")[-1]
-                    part = parts[4].split("_")[-1].split(".")[0]
+                    part = parts[3].split("_")[-1].split(".")[0]
 
                     # Add the bX_Number to the appropriate detector_model and scenario
                     detector_data[detector_model][scenario][bX_number].add(part)

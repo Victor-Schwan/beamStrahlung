@@ -231,6 +231,18 @@ def construct_beamstrahlung_paths() -> Dict[str, Dict[str, Dict[str, Path]]]:
     return beam_strahlung_data_paths
 
 
+def flatten_bg_paths(nested: dict) -> dict[str, str]:
+    """
+    Convert the nested {scenario: {MachineID: Path}} structure
+    into a flat {scenario: str} mapping that contains only the
+    relative path component.
+    """
+    return {
+        str(next(iter(machine_map.values())).name): scenario
+        for scenario, machine_map in nested.items()
+    }
+
+
 def construct_paths(is_executed_on_desy_naf):
     bs_data_paths = construct_beamstrahlung_paths()
 
