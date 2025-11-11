@@ -32,6 +32,7 @@ import re
 from pathlib import Path
 
 from tabulate import tabulate
+
 from platform_paths import edm4hep_file_suffix
 
 # === Configuration constants ===

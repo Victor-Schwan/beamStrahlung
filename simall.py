@@ -11,14 +11,14 @@ from platform_paths import (
     SIM_DATA_SUBDIR_NAME,
     code_dir,
     construct_paths,
-    get_path_for_current_machine,
-    identify_system,
-    get_path_from_env,
     edm4hep_file_suffix,
     file_extensions,
+    get_path_for_current_machine,
+    get_path_from_env,
+    identify_system,
 )
+from scenario_folder_utils import BX_PREFIX, N_ZERO_PADDING_BX, collect_all_parts
 from submit_utils_4_simall import submit_job
-from scenario_folder_utils import collect_all_parts, BX_PREFIX, N_ZERO_PADDING_BX
 
 is_executed_on_DESY_NAF = identify_system() == DESY_NAF_MACHINE_IDENTIFIER
 

@@ -2,11 +2,11 @@ from pathlib import Path
 
 from platform_paths import SR_raw_input_dir, SR_split_input_dir
 from scenario_folder_utils import (
-    create_bx_subfolders,
+    BX_PREFIX,
     N_ZERO_PADDING_BX,
     N_ZERO_PADDING_PART,
-    BX_PREFIX,
     PART_PREFIX,
+    create_bx_subfolders,
 )
 
 

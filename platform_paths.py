@@ -9,8 +9,8 @@ import json
 from enum import Enum
 from os import environ
 from pathlib import Path
+from sys import version, version_info
 from typing import Dict
-from sys import version_info, version
 
 edm4hep_file_suffix = ".edm4hep.root"
 

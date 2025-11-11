@@ -14,8 +14,8 @@ from det_mod_configs import (
 )
 from platform_paths import (
     SIM_DATA_SUBDIR_NAME,
-    resolve_path_with_env,
     get_path_from_env,
+    resolve_path_with_env,
 )
 from plotting import plotting
 from simall import CHOICES_SCENARIOS, DEFAULT_SCENARIOS, get_args
