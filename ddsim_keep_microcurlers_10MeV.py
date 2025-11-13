@@ -30,7 +30,7 @@ SIM.numberOfEvents = 1
 ## Outputfile from the simulation,only lcio output is supported
 SIM.outputFile = "dummyOutput.slcio"
 ## Physics list to use in simulation
-SIM.physicsList = None
+SIM.physicsList = "FTFP_BERT_EMZ"  # FCC BIB studies
 ## Verbosity use integers from 1(most) to 7(least) verbose
 ## or strings: VERBOSE, DEBUG, INFO, WARNING, ERROR, FATAL, ALWAYS
 SIM.printLevel = "INFO"
@@ -155,7 +155,7 @@ SIM.filter.mapDetFilter["TPC"] = None
 # SIM.filter.mapDetFilter['TPC'] = "edep0" # makes no difference
 
 ##  default filter for tracking sensitive detectors; this is applied if no other filter is used for a tracker
-SIM.filter.tracker = "edep1kev"
+SIM.filter.tracker = "edep0"  # FCC BIB studies
 
 
 ################################################################################
@@ -276,7 +276,7 @@ SIM.physics.pdgfile = os.path.join(
 ##     Set printlevel to DEBUG to see a printout of all range cuts,
 ##     but this only works if range cut is not "None"
 ##
-SIM.physics.rangecut = 0.1 * mm
+SIM.physics.rangecut = 0.05 * mm  # FCC BIB studies
 
 
 ################################################################################
@@ -291,3 +291,11 @@ SIM.random.luxury = 1
 SIM.random.replace_gRandom = True
 SIM.random.seed = None
 SIM.random.type = None
+
+# FCC BIB studies
+SIM.ui.commandsConfigure = [
+    "/cuts/setLowEdge 50 eV",
+    "/process/em/lowestElectronEnergy 1 eV",
+    "/process/em/auger true",
+    "/process/em/deexcitationIgnoreCut true",
+]
