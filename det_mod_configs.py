@@ -66,17 +66,17 @@ accelerators = {
 sub_det_cols_fcc = {
     "vb": HitCollection(
         root_tree_branch_name="VertexBarrelCollection",
-        plot_collection_prefix="Vertex Barrel",
+        plot_collection_prefix="VTX Barrel",
         only_double_layers=True,
     ),
     "ve": HitCollection(
         root_tree_branch_name="VertexEndcapCollection",
-        plot_collection_prefix="Vertex Endcap",
+        plot_collection_prefix="VTX Endcap",
         only_double_layers=True,
     ),
     "tpc": HitCollection(
         root_tree_branch_name="TPCLowPtCollection",
-        plot_collection_prefix="Time Projection Chamber",
+        plot_collection_prefix="TPC",
         only_double_layers=False,
     ),
 }
@@ -84,7 +84,7 @@ sub_det_cols_fcc = {
 sub_det_cols_ilc = {
     "vb": HitCollection(
         root_tree_branch_name="VXDCollection",
-        plot_collection_prefix="Vertex",
+        plot_collection_prefix="VTX",
         only_double_layers=True,
     ),
     "f": HitCollection(
@@ -94,7 +94,7 @@ sub_det_cols_ilc = {
     ),
     "tpc": HitCollection(
         root_tree_branch_name="TPCLowPtCollection",
-        plot_collection_prefix="Time Projection Chamber",
+        plot_collection_prefix="TPC",
         only_double_layers=False,
     ),
 }

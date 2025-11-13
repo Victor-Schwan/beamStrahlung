@@ -38,8 +38,8 @@ def plotting(
     limits = {
         "vb": 60,
         "ve": 105,
-        "tpc": 500,
-    }  # Limit in mm for 'vb'  # Limit in mm for 've'
+        "tpc": 1800,
+    }
 
     scale_factor = scale_sr_hits(1, scenario, background)
 
