@@ -48,7 +48,7 @@ def split_hepevt_file(
     scenario_name,
     bx_index,
     flat_sr_paths_dict,
-    lines_per_file=5000,
+    lines_per_file=20000,
 ):
     """
     Split a single HEPEVT input file (representing one BX) into part files.
@@ -111,7 +111,7 @@ def split_hepevt_file(
 def split_all_hepevt_files_in_scenario(
     raw_scenario_dir: Path,
     output_scenario_dir: Path,
-    lines_per_file: int = 5000,
+    lines_per_file: int = None,
     file_pattern: str = "*.hepevt",
 ):
     """
@@ -139,14 +139,23 @@ def split_all_hepevt_files_in_scenario(
     for bx_index, (input_file, bx_output_dir) in enumerate(
         zip(input_files, bx_dirs), start=1
     ):
-        split_hepevt_file(
-            input_file,
-            bx_output_dir,
-            scenario_name,
-            bx_index,
-            flat_sr_paths,
-            lines_per_file=lines_per_file,
-        )
+        if lines_per_file:
+            split_hepevt_file(
+                input_file,
+                bx_output_dir,
+                scenario_name,
+                bx_index,
+                flat_sr_paths,
+                lines_per_file=lines_per_file,
+            )
+        else:
+            split_hepevt_file(
+                input_file,
+                bx_output_dir,
+                scenario_name,
+                bx_index,
+                flat_sr_paths,
+            )
 
 
 # ================================================================
@@ -163,7 +172,7 @@ def main():
 
         output_scenario_dir = SR_split_input_dir / raw_scenario_dir.name
         split_all_hepevt_files_in_scenario(
-            raw_scenario_dir, output_scenario_dir, lines_per_file=5000
+            raw_scenario_dir, output_scenario_dir, lines_per_file=None
         )
 
 
