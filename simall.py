@@ -92,7 +92,7 @@ def parse_arguments():
     parser.add_argument(
         "--scenario",
         nargs="+",
-        help="Accelerator configurations to analyze (choose one or more)",
+        help="Accelerator configurations to analyze (choose one or more), or 'all' to use all available ones",
     )
 
     parser.add_argument(
@@ -120,6 +120,10 @@ def get_args(parse_args=parse_arguments):
     # Apply default if not specified
     if args.scenario is None:
         args.scenario = list(DEFAULT_SCENARIOS[args.background])
+
+    # '--scenario all' as shortcut to process all
+    if len(args.scenario) == 1 and args.scenario[0].lower() == "all":
+        args.scenario = list(CHOICES_SCENARIOS[args.background])
 
     # Validate manually
     valid_choices = CHOICES_SCENARIOS[args.background]
