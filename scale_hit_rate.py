@@ -10,11 +10,14 @@ path_to_v23_reference = resolve_path_with_env(
 
 # the halo populations were taken from the full filenames. The nzco were taken from
 simulated_populations = {
-    "182GeV_nzco_10urad": 1e7,
-    "182GeV_nzco_6urad": 1e7,
-    "182GeV_nzco_2urad": 1e7,
+    "182GeV_nzco_10urad": 5e6,
+    "182GeV_nzco_6urad": 5e6,
+    "182GeV_nzco_2urad": 5e6,
+    "182GeV_halo": 8e7,
+    "45GeV_nzco_10urad": 1e7,
+    "45GeV_nzco_6urad": 1e7,
+    "45GeV_nzco_2urad": 1e7,
     "45GeV_halo": 2e7,
-    "182GeV_halo": 4e7,
 }
 
 energy_labels = {
