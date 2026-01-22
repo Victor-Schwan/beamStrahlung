@@ -9,6 +9,8 @@ from tabulate import tabulate
 from get_hits_per_layer import divide_hits
 from scale_hit_rate import scale_hits_dict
 
+json_data_folder_name = "json_data"
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser(
@@ -45,11 +47,10 @@ dt_dir = os.environ[
 # Construct the json_dir path
 if args.plot_all:
     json_dirs = [
-        Path(dt_dir) / "beamstrahlung/json_data",
-        Path(dt_dir) / "synchrotron/json_data",
+        Path(dt_dir) / "sim" / args.version / json_data_folder_name,
     ]
 else:
-    json_dirs = [Path(dt_dir) / args.version / "json_data"]
+    json_dirs = [Path(dt_dir) / args.version / json_data_folder_name]
 
 
 def extract_hits_per_bx(json_path):
