@@ -172,19 +172,19 @@ def construct_SR_paths() -> Dict[str, Dict[MachineID, Path]]:
                 / "sr_photons_from_20Mpositron_45GeVcom_halo_v23_mediumfilter"
             ),
         },
-        "45GeVcom_nzco_10urad": {
+        "45GeV_nzco_10urad": {
             DESY_NAF_MACHINE_IDENTIFIER: (
                 SR_split_input_dir
                 / "sr_photons_from_10Mpositron_45GeVcom_nzco_10urad_v23_mediumfilter"
             ),
         },
-        "45GeVcom_nzco_6urad": {
+        "45GeV_nzco_6urad": {
             DESY_NAF_MACHINE_IDENTIFIER: (
                 SR_split_input_dir
                 / "sr_photons_from_10Mpositron_45GeVcom_nzco_6urad_v23_mediumfilter"
             ),
         },
-        "45GeVcom_nzco_2urad": {
+        "45GeV_nzco_2urad": {
             DESY_NAF_MACHINE_IDENTIFIER: (
                 SR_split_input_dir
                 / "sr_photons_from_10Mpositron_45GeVcom_nzco_2urad_v23_mediumfilter"
