@@ -8,6 +8,7 @@ from tabulate import tabulate
 
 from get_hits_per_layer import divide_hits
 from scale_hit_rate import scale_hits_dict
+from plot_hit_rates import plot_hit_rates
 
 json_data_folder_name = "json_data"
 
@@ -63,6 +64,7 @@ def extract_hits_per_bx(json_path):
     background = data["background"]
     hits = data["hits"]
     divided_hits = divide_hits(hits, det_mod)
+    divided_hits.pop("TPC", None)
     results_dict = scale_hits_dict(divided_hits, scenario, background, num_bx, det_mod)[
         args.unit
     ]

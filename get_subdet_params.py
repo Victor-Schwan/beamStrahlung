@@ -25,7 +25,6 @@ KEYWORDS = {
         "VertexBarrel_r",
         "VertexBarrel_zmax",
     ],
-    "TPC": ["top_TPC_inner_radius", "top_TPC_outer_radius"],
 }
 # Cannot find values stored in xml file for ILC model. This should be changed for single source of truth
 ILC_vb_params = {
@@ -76,7 +75,7 @@ def get_tpc_pixel_size(xml_path=TPC_pixel_xml):
 
 
 pixel_areas = {
-    "TPC": get_tpc_pixel_size(),
+    #"TPC": get_tpc_pixel_size(),
     "Vertex": vertex_pixel_size**2,
 }
 
@@ -169,8 +168,8 @@ def get_area(parameters):
         ve_pixels = [a / pixel_areas["Vertex"] for a in ve_areas]
 
         # --- TPC ---
-        tpc_area = calculate_TPC_area(det_params["TPC"]["TPC"])
-        tpc_pixels = tpc_area / pixel_areas["TPC"]
+        #tpc_area = calculate_TPC_area(det_params["TPC"]["TPC"])
+        #tpc_pixels = tpc_area / pixel_areas["TPC"]
 
         # --- Assemble ---
         new_params[det_mod] = {
@@ -188,14 +187,6 @@ def get_area(parameters):
                     "n_pixels": ve_pixels,
                 },
             },
-            "TPC": {
-                **det_params["TPC"],
-                "TPC": {
-                    **det_params["TPC"]["TPC"],
-                    "a": [tpc_area],
-                    "n_pixels": [tpc_pixels],
-                },
-            },
         }
 
     return new_params
@@ -203,8 +194,6 @@ def get_area(parameters):
 
 def get_params():
     fcc_vertex_params = extract_constants(vertex_xml, KEYWORDS["Vertex"])
-    large_TPC_params = extract_constants(large_TPC_xml, KEYWORDS["TPC"])
-    small_TPC_params = extract_constants(small_TPC_xml, KEYWORDS["TPC"])
 
     parameters = {
         "ILD_FCCee_v01": {
@@ -224,15 +213,6 @@ def get_params():
                     "n_pixels": [],
                 },
             },
-            "TPC": {
-                "TPC": {
-                    "r_inner": large_TPC_params["top_TPC_inner_radius"],
-                    "r_outer": large_TPC_params["top_TPC_outer_radius"],
-                    "z": [],
-                    "a": [],
-                    "n_pixels": [],
-                }
-            },
         },
         "ILD_FCCee_v02": {
             "Vertex": {
@@ -251,15 +231,6 @@ def get_params():
                     "n_pixels": [],
                 },
             },
-            "TPC": {
-                "TPC": {
-                    "r_inner": small_TPC_params["top_TPC_inner_radius"],
-                    "r_outer": small_TPC_params["top_TPC_outer_radius"],
-                    "z": [],
-                    "a": [],
-                    "n_pixels": [],
-                }
-            },
         },
         "ILD_l5_v02": {
             "Vertex": {
@@ -275,15 +246,6 @@ def get_params():
                     "a": [],
                     "n_pixels": [],
                 },
-            },
-            "TPC": {
-                "TPC": {
-                    "r_inner": large_TPC_params["top_TPC_inner_radius"],
-                    "r_outer": large_TPC_params["top_TPC_outer_radius"],
-                    "z": [],
-                    "a": [],
-                    "n_pixels": [],
-                }
             },
         },
     }
