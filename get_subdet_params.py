@@ -4,8 +4,9 @@ import xml.etree.ElementTree as ET
 from numpy import pi
 
 from det_mod_configs import sub_det_cols_fcc, sub_det_cols_ilc
+from platform_paths import resolve_path_with_env
 
-vertex_xml = "../k4geo/FCCee/CLD/compact/CLD_o2_v07/Vertex_o4_v07_smallBP.xml"
+vertex_xml = resolve_path_with_env("FCCee/CLD/compact/CLD_o2_v07/Vertex_o4_v07_smallBP.xml", "k4gDir") #../k4geo/FCCee/CLD/compact/CLD_o2_v07/Vertex_o4_v07_smallBP.xml"
 large_TPC_xml = (
     "../k4geo/FCCee/ILD_FCCee/compact/ILD_FCCee_v01/top_defs_ILD_FCCee_v01.xml"
 )
