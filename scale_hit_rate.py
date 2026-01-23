@@ -52,6 +52,9 @@ def scale_sr_hits(n_hits, scenario, background="synchrotron", num_bx=1):
 def scale_hits_dict(divided_hits, scenario, background, num_bx, det_mod):
     det_params = get_params()[det_mod]
 
+    # calls above function and does simple scaling to fix 2 things
+    #    1) scale up to real particle population
+    #    2) divide by n_BX
     hit_rates = {
         subdet: {
             layer: scale_sr_hits(len(hits["z"]), scenario, background, num_bx)
@@ -60,6 +63,7 @@ def scale_hits_dict(divided_hits, scenario, background, num_bx, det_mod):
         for subdet, subdet_hits in divided_hits.items()
     }
 
+    # takes above scaled hits and further divides by area of subdetector
     hit_rates_per_mm = {
         subdet: {
             layer: hits / det_params[subdet][layer.split("_")[0]]["a"][layer.split("_")[1]-1]
@@ -69,6 +73,7 @@ def scale_hits_dict(divided_hits, scenario, background, num_bx, det_mod):
         for subdet, subdet_hits in hit_rates.items()
     }
 
+    # takes "per_bx" scaling but without area divison and divides by number of pixels
     occupancy = {
         subdet: {
             layer: 100 * hits / det_params[subdet][layer.split("_")[0]]["n_pixels"][layer.split("_")[1]-1]
