@@ -66,7 +66,7 @@ def scale_hits_dict(divided_hits, scenario, background, num_bx, det_mod):
     # takes above scaled hits and further divides by area of subdetector
     hit_rates_per_mm = {
         subdet: {
-            layer: hits / det_params[subdet][layer.split("_")[0]]["a"][layer.split("_")[1]-1]
+            layer: hits / det_params[subdet][layer.split("_")[0]]["a"][int(layer.split("_")[1])-1]
             # e.g.: det_params['Vertex']['vb_1'.split("_")[0]='vb']["a"][layer.split("_")[1]-1='0']
             for layer, hits in subdet_hits.items()
         }
@@ -76,7 +76,7 @@ def scale_hits_dict(divided_hits, scenario, background, num_bx, det_mod):
     # takes "per_bx" scaling but without area divison and divides by number of pixels
     occupancy = {
         subdet: {
-            layer: 100 * hits / det_params[subdet][layer.split("_")[0]]["n_pixels"][layer.split("_")[1]-1]
+            layer: 100 * hits / det_params[subdet][layer.split("_")[0]]["n_pixels"][int(layer.split("_")[1])-1]
             # 100 to convert to percent
             for layer, hits in subdet_hits.items()
         }
