@@ -9,7 +9,8 @@ import numpy as np
 from get_subdet_params import get_params
 from platform_paths import resolve_path_with_env
 
-bx_rate_FCC = 50000000.0
+bx_rate_FCC_Z = 40e6  # 40MHz
+bx_rate_FCC_tt = 0.2e6  # 0.2MHz
 out_plot_dir = resolve_path_with_env("2026-01-plots", "dtDir")
 
 my_label_size = 16
@@ -28,15 +29,15 @@ params = get_params()
 scenarios = {
     "182GeV_nzco_10urad": {
         "label": "SR Core (Scaled)",
-        "bx_rate": bx_rate_FCC,
+        "bx_rate": bx_rate_FCC_tt,
     },
     "FCC091": {
         "label": "FCC091",
-        "bx_rate": bx_rate_FCC,
+        "bx_rate": bx_rate_FCC_Z,
     },
     "FCC240": {
         "label": "FCC240",
-        "bx_rate": bx_rate_FCC,
+        "bx_rate": bx_rate_FCC_tt,
     },
     "ILC250": {
         "label": "ILC250",
@@ -44,7 +45,7 @@ scenarios = {
     },
     "182GeV_halo": {
         "label": "SR Halo (Scaled)",
-        "bx_rate": bx_rate_FCC,
+        "bx_rate": bx_rate_FCC_tt,
     },
 }
 
