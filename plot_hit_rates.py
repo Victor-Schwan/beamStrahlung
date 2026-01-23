@@ -1,11 +1,19 @@
-import matplotlib.pyplot as plt
+from datetime import datetime
+from pathlib import Path
+
 import matplotlib as mpl
+import matplotlib.cm as cm
+import matplotlib.pyplot as plt
 import numpy as np
 
 from get_subdet_params import get_params
+from platform_paths import resolve_path_with_env
 
+bx_rate_FCC = 50000000.0
+out_plot_dir = resolve_path_with_env("2026-01-plots", "dtDir")
 
 my_label_size = 16
+my_title_font_size = 18
 my_plot_params = {
     "legend.fontsize": my_label_size,
     "xtick.labelsize": my_label_size,
@@ -20,30 +28,29 @@ params = get_params()
 scenarios = {
     "182GeV_nzco_10urad": {
         "label": "SR Core (Scaled)",
-        "bx_rate": 50000000.0,
-        "c": "b",
+        "bx_rate": bx_rate_FCC,
     },
     "FCC091": {
         "label": "FCC091",
-        "bx_rate": 50000000.0,
-        "c": "g",
+        "bx_rate": bx_rate_FCC,
     },
     "FCC240": {
         "label": "FCC240",
-        "bx_rate": 50000000.0,
-        "c": "orange",
+        "bx_rate": bx_rate_FCC,
     },
     "ILC250": {
         "label": "ILC250",
         "bx_rate": 6600.0,
-        "c": "purple",
     },
     "182GeV_halo": {
         "label": "SR Halo (Scaled)",
-        "bx_rate": 50000000.0,
-        "c": "brown",
+        "bx_rate": bx_rate_FCC,
     },
 }
+
+# ensure an unambigious color-scenario mapping
+cmap = cm.get_cmap("tab10")
+scenario_colors = {scenario: cmap(i) for i, scenario in enumerate(scenarios)}
 
 
 def extract_values(rows, det_mod, subdet, scenario):
@@ -70,17 +77,17 @@ def plot_endcap(rows, axes, det_mod):
     axes.set_xlabel("Endcap Layer z position (mm)", fontsize=16)
     axes.set_xlim(min(z_positions) - 5, max(z_positions) + 5)
     axes.set_xticks(z_positions[0::2])
-    axes.set_title(det_mod + " VXD endcap", fontsize=22)
+    axes.set_title(det_mod + " VXD endcap", fontsize=my_title_font_size)
     for scenario in scenarios.keys():
-        dict = scenarios[scenario]
+        plot_para_dict = scenarios[scenario]
         hit_rates = extract_values(rows, det_mod, "Vertex", scenario)[6:]
         if len(hit_rates) == len(z_positions):
             axes.plot(
                 z_positions,
-                hit_rates * dict["bx_rate"],
+                hit_rates * plot_para_dict["bx_rate"],
                 marker=".",
-                label=dict["label"],
-                c=dict["c"],
+                label=plot_para_dict["label"],
+                color=scenario_colors[scenario],
             )
 
 
@@ -89,17 +96,17 @@ def plot_barrel(rows, axes, det_mod):
     axes.set_xlabel("Barrel Layer Radius (mm)", fontsize=16)
     axes.set_xlim(10, 62)
     axes.set_xticks(radii[0::2])
-    axes.set_title(det_mod + " VXD barrel", fontsize=22)
+    axes.set_title(det_mod + " VXD barrel", fontsize=my_title_font_size)
     for scenario in scenarios.keys():
-        dict = scenarios[scenario]
+        plot_para_dict = scenarios[scenario]
         hit_rates = extract_values(rows, det_mod, "Vertex", scenario)[:6]
         if len(hit_rates) == len(radii):
             axes.plot(
                 radii,
-                hit_rates * dict["bx_rate"],
+                hit_rates * plot_para_dict["bx_rate"],
                 marker=".",
-                label=dict["label"],
-                c=dict["c"],
+                label=plot_para_dict["label"],
+                color=scenario_colors[scenario],
             )
 
 
@@ -116,6 +123,7 @@ def plot_hit_rates(rows):
         ax.grid()
         ax.axhline(1600 * 5e7, ls="dashed", c="red", label="100% Occupancy")
         ax.set_ylabel(r"Hit Rate (Hz/mm$^2$)", fontsize=16)
+
     # Collect legend handles/labels from the last axis (they're the same for both)
     handles, labels = axes[-2].get_legend_handles_labels()
 
@@ -129,4 +137,7 @@ def plot_hit_rates(rows):
         fontsize=14,
     )
 
-    plt.show()
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    output_path = out_plot_dir / f"hit_rates_{timestamp}.png"
+    plt.savefig(output_path, dpi=300)
+    print(f"Plot saved to {output_path}")
