@@ -46,12 +46,9 @@ dt_dir = os.environ[
 ]  # Raises KeyError if not set — use .get() if you want a fallback
 
 # Construct the json_dir path
-if args.plot_all:
-    json_dirs = [
-        Path(dt_dir) / "sim" / args.version / json_data_folder_name,
-    ]
-else:
-    json_dirs = [Path(dt_dir) / args.version / json_data_folder_name]
+json_dirs = [
+    Path(dt_dir) / "sim" / args.version / json_data_folder_name,
+]
 
 
 def extract_hits_per_bx(json_path):
