@@ -1,7 +1,19 @@
 import matplotlib.pyplot as plt
+import matplotlib as mpl
 import numpy as np
 
 from get_subdet_params import get_params
+
+
+my_label_size = 16
+my_plot_params = {
+    "legend.fontsize": my_label_size,
+    "xtick.labelsize": my_label_size,
+    "ytick.labelsize": my_label_size,
+    "axes.labelsize": my_label_size,
+    "axes.titlesize": my_label_size,
+}
+mpl.rcParams.update(my_plot_params)
 
 params = get_params()
 
@@ -92,7 +104,7 @@ def plot_barrel(rows, axes, det_mod):
 
 
 def plot_hit_rates(rows):
-    fig = plt.figure(figsize=(12, 6))
+    fig = plt.figure(figsize=(12, 6), constrained_layout=True)
     axes = fig.subplots(1, 3)
     plot_endcap(rows, axes[0], "ILD_FCCee_v01")
     plot_barrel(rows, axes[1], "ILD_FCCee_v01")
@@ -108,8 +120,13 @@ def plot_hit_rates(rows):
     handles, labels = axes[-2].get_legend_handles_labels()
 
     # Place legend centered below the plots
-    fig.legend(handles, labels, loc="lower center", ncol=3, framealpha=0, fontsize=14)
+    fig.legend(
+        handles,
+        labels,
+        loc="outside lower center",
+        ncol=3,
+        framealpha=0,
+        fontsize=14,
+    )
 
-    plt.tight_layout()
-    plt.subplots_adjust(bottom=0.25)  # make space for legend
     plt.show()
