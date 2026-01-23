@@ -59,9 +59,11 @@ def scale_hits_dict(divided_hits, scenario, background, num_bx, det_mod):
         }
         for subdet, subdet_hits in divided_hits.items()
     }
+
     hit_rates_per_mm = {
         subdet: {
-            layer: hits / det_params[subdet][layer.split("_")[0]]["a"][0]
+            layer: hits / det_params[subdet][layer.split("_")[0]]["a"][layer.split("_")[1]-1]
+            # e.g.: det_params['Vertex']['vb_1'.split("_")[0]='vb']["a"][layer.split("_")[1]-1='0']
             for layer, hits in subdet_hits.items()
         }
         for subdet, subdet_hits in hit_rates.items()
@@ -69,7 +71,8 @@ def scale_hits_dict(divided_hits, scenario, background, num_bx, det_mod):
 
     occupancy = {
         subdet: {
-            layer: 100 * hits / det_params[subdet][layer.split("_")[0]]["n_pixels"][0]
+            layer: 100 * hits / det_params[subdet][layer.split("_")[0]]["n_pixels"][layer.split("_")[1]-1]
+            # 100 to convert to percent
             for layer, hits in subdet_hits.items()
         }
         for subdet, subdet_hits in hit_rates.items()

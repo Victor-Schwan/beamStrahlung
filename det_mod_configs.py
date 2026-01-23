@@ -14,6 +14,7 @@ DEFAULT_DETECTOR_MODELS = "ILD_FCCee_v01", "ILD_l5_v02"
 
 
 # Define the dataclass
+# TODO: rename only_double_layers to has/is_double_layer?
 @dataclass
 class HitCollection:
     root_tree_branch_name: str
@@ -61,7 +62,6 @@ accelerators = {
     "FCCee": AcceleratorConfig("FCCee", ild4FCC_dir, 15.0e-3 * rad),
     "ILC": AcceleratorConfig("ILC", ild4ILC_dir, 7.0e-3 * rad),
 }
-
 
 sub_det_cols_fcc = {
     "vb": HitCollection(
