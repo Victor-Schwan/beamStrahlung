@@ -128,27 +128,24 @@ def plot_barrel(rows, axes, det_mod):
 
 
 def plot_hit_rates(rows):
-    fig = plt.figure(figsize=(12, 6), constrained_layout=True)
-    axes = fig.subplots(1, 3)
-    plot_endcap(rows, axes[0], "ILD_FCCee_v01")
-    plot_barrel(rows, axes[1], "ILD_FCCee_v01")
-    plot_barrel(rows, axes[2], "ILD_l5_v02")
+    fig = plt.figure(figsize=(8, 6), constrained_layout=True)
+    ax = fig.subplots(1, 1)
+    plot_barrel(rows, ax, "ILD_FCCee_v01")
 
-    for ax in axes:
-        ax.set_yscale("log")
-        ax.set_ylim(5, 5e12)
-        ax.grid()
-        ax.set_ylabel(r"Hit Rate (Hz/mm$^2$)", fontsize=16)
+    ax.set_yscale("log")
+    ax.set_ylim(5, 5e10)
+    ax.grid()
+    ax.set_ylabel(r"Hit Rate (Hz/mm$^2$)", fontsize=16)
 
     # Collect legend handles/labels from the last axis (they're the same for both)
-    handles, labels = axes[-2].get_legend_handles_labels()
+    handles, labels = ax.get_legend_handles_labels()
 
     # Place legend centered below the plots
     fig.legend(
         handles,
         labels,
-        loc="outside lower center",
-        ncol=3,
+        loc="outside center right",
+        ncols=1,
         framealpha=0,
         fontsize=14,
     )
