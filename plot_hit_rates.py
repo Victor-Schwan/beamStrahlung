@@ -138,7 +138,6 @@ def plot_hit_rates(rows):
         ax.set_yscale("log")
         ax.set_ylim(5, 5e12)
         ax.grid()
-        ax.axhline(1600 * 5e7, ls="dashed", c="red", label="100% Occupancy")
         ax.set_ylabel(r"Hit Rate (Hz/mm$^2$)", fontsize=16)
 
     # Collect legend handles/labels from the last axis (they're the same for both)
