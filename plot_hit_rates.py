@@ -101,7 +101,7 @@ def plot_endcap(rows, axes, det_mod):
         if len(hit_rates) == len(z_positions):
             axes.plot(
                 z_positions,
-                hit_rates * plot_para_dict["bx_rate"],
+                hit_rates,
                 marker=".",
                 label=plot_para_dict["label"],
                 color=scenario_colors[scenario],
@@ -120,7 +120,7 @@ def plot_barrel(rows, axes, det_mod):
         if len(hit_rates) == len(radii):
             axes.plot(
                 radii,
-                hit_rates * plot_para_dict["bx_rate"],
+                hit_rates,
                 marker=".",
                 label=plot_para_dict["label"],
                 color=scenario_colors[scenario],
@@ -133,9 +133,9 @@ def plot_hit_rates(rows):
     plot_barrel(rows, ax, "ILD_FCCee_v01")
 
     ax.set_yscale("log")
-    ax.set_ylim(5, 5e10)
+    ax.set_ylim(5, 5e5)
     ax.grid()
-    ax.set_ylabel(r"Hit Rate (Hz/mm$^2$)", fontsize=16)
+    ax.set_ylabel(r"Hits [1/(BX*mm$^2$)]", fontsize=16)
 
     # Collect legend handles/labels from the last axis (they're the same for both)
     handles, labels = ax.get_legend_handles_labels()
