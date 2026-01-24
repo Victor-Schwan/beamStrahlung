@@ -28,25 +28,41 @@ params = get_params()
 
 scenarios = {
     "182GeV_nzco_10urad": {
-        "label": "SR Core (Scaled)",
+        "label": "SR tt Core 10urad",
         "bx_rate": bx_rate_FCC_tt,
     },
-    "FCC091": {
-        "label": "FCC091",
+    "45GeV_nzco_10urad": {
+        "label": "SR Z Core 10urad",
         "bx_rate": bx_rate_FCC_Z,
     },
-    "FCC240": {
-        "label": "FCC240",
+    "182GeV_nzco_6urad": {
+        "label": "SR tt Core 6urad",
         "bx_rate": bx_rate_FCC_tt,
     },
-    "ILC250": {
-        "label": "ILC250",
-        "bx_rate": 6600.0,
+    "45GeV_nzco_6urad": {
+        "label": "SR Z Core 6urad",
+        "bx_rate": bx_rate_FCC_Z,
+    },
+    "182GeV_nzco_2urad": {
+        "label": "SR tt Core 2urad",
+        "bx_rate": bx_rate_FCC_tt,
+    },
+    "45GeV_nzco_2urad": {
+        "label": "SR Z Core 2urad",
+        "bx_rate": bx_rate_FCC_Z,
+    },
+    "45GeV_halo": {
+        "label": "SR Z Halo",
+        "bx_rate": bx_rate_FCC_Z,
     },
     "182GeV_halo": {
-        "label": "SR Halo (Scaled)",
+        "label": "SR tt Halo",
         "bx_rate": bx_rate_FCC_tt,
     },
+    #    "ILC250": {
+    #        "label": "ILC250",
+    #        "bx_rate": 6600.0,
+    #    },
 }
 
 # ensure an unambigious color-scenario mapping
