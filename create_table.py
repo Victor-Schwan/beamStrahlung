@@ -127,7 +127,7 @@ def main():
     # print(tabulate(df, headers="keys", tablefmt="grid"))
 
     latex_table = tabulate(df, headers="keys", tablefmt="latex")
-    with open(json_dirs[0] / "../background_table.tex", "w") as f:
+    with open(json_dirs[0].parent / "background_table.tex", "w") as f:
         f.write(latex_table)
     markdown_table = tabulate(df, headers="keys", tablefmt="github")
     print(markdown_table)
