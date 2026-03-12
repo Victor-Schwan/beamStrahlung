@@ -48,13 +48,6 @@ def parse_arguments():
     )
 
     parser.add_argument(
-        "--bunchCrossingEnd",
-        type=int,
-        default=2,
-        help="End value for bunch crossing (default: 2)",
-    )
-
-    parser.add_argument(
         "--nEvents",
         type=int,
         default=1,
