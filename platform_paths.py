@@ -244,6 +244,14 @@ def construct_beamstrahlung_paths() -> Dict[str, Dict[str, Dict[str, Path]]]:
                 else ""
             ),
         },
+        "FCC_GHC_24.4_Z": {
+            DESY_NAF_MACHINE_IDENTIFIER: Path(
+                get_path_from_env("dtDir")
+                / "backgrounds"
+                / "FCCee"
+                / "FCCee_GHC_v24.4_IPC_VTX0_Z"
+            )
+        },
     }
 
     return beam_strahlung_data_paths
