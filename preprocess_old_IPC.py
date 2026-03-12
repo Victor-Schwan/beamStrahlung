@@ -1,23 +1,32 @@
 import argparse
 import re
 from pathlib import Path
+
+from platform_paths import file_extensions
+
 from scenario_folder_utils import (
+    BX_PREFIX,
     N_ZERO_PADDING_BX,
     N_ZERO_PADDING_PART,
-    BX_PREFIX,
     PART_PREFIX,
 )
-
-DEFAULT_SUFFIX = ".pairs"
 
 
 def process_ipc_files(input_dir: Path, output_dir: Path):
     """
     Parses GuineaPig IPC files, resets vertices to (0,0,0), and organizes
     them into the folder structure expected by scenario_folder_utils.
+
+    Naming Convention: scenario-BX_####-part_####.pairs
     """
     if not input_dir.is_dir():
         raise NotADirectoryError(f"Input path {input_dir} is not a directory.")
+
+    # Get the suffix from platform_paths (defaulting to .pairs for beamstrahlung)
+    suffix = file_extensions.get("beamstrahlung", ".pairs")
+
+    # Use the parent folder name as the scenario name for the filename
+    scenario_name = output_dir.name
 
     # Match folders named 'data1', 'data2', etc.
     data_folder_pattern = re.compile(r"data(\d+)")
@@ -51,11 +60,11 @@ def process_ipc_files(input_dir: Path, output_dir: Path):
         target_dir = output_dir / bx_folder_name
         target_dir.mkdir(parents=True, exist_ok=True)
 
-        # Output filename: prefix_BX_0123_part_0001.pairs
-        # We assume part 1 as there is only one file per BX
+        # Harmonized format: scenario-BX_####-part_####.pairs
+        # Note: scenario name and detector names usually don't contain dashes
         out_file_name = (
-            f"guineaPig_{bx_folder_name}_{PART_PREFIX}"
-            f"{1:0{N_ZERO_PADDING_PART}d}{DEFAULT_SUFFIX}"
+            f"{scenario_name}-{bx_folder_name}-"
+            f"{PART_PREFIX}{1:0{N_ZERO_PADDING_PART}d}{suffix}"
         )
         output_file = target_dir / out_file_name
 
@@ -67,24 +76,19 @@ def process_ipc_files(input_dir: Path, output_dir: Path):
                 parts = line.split()
                 if len(parts) < 7:
                     continue
-
-                # GuineaPig format indices for position: 4, 5, 6 (x, y, z)
-                # We set them to "0" as per the requirement
-                parts[4] = "0"
-                parts[5] = "0"
-                parts[6] = "0"
-
+                # Reset vertex to (0,0,0)
+                parts[4], parts[5], parts[6] = "0", "0", "0"
                 processed_lines.append(" ".join(parts) + " \n")
 
         with output_file.open("w", encoding="utf-8") as f:
             f.writelines(processed_lines)
 
-    print("\nProcessing complete.")
+    print(f"Processing complete for scenario: {scenario_name}")
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Prepare GuineaPig IPC data for k4hep/simall processing."
+        description="Prepare GuineaPig IPC data with harmonized naming: scenario-BX_####-part_####.pairs"
     )
     parser.add_argument(
         "-i",

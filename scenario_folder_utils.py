@@ -71,7 +71,7 @@ def discover_parts_in_bx(bx_folder: Path, suffix: str) -> list[Path]:
     """
     # Build regex to extract the part index
     part_pattern = re.compile(
-        rf"_{BX_PREFIX}\d{{{N_ZERO_PADDING_BX}}}_{PART_PREFIX}(\d{{{N_ZERO_PADDING_PART}}}){re.escape(suffix)}$"
+        rf"-{BX_PREFIX}\d{{{N_ZERO_PADDING_BX}}}-{PART_PREFIX}(\d{{{N_ZERO_PADDING_PART}}}){re.escape(suffix)}$"
     )
 
     parts = []
