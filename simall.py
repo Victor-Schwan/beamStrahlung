@@ -195,8 +195,17 @@ def main():
                     out_dir.mkdir(parents=True, exist_ok=True)
 
                     # Output file base name (preserves part info)
-                    part_stem = part_file.stem  # e.g. scenario_BX_0001_part_0001
-                    out_name = out_dir / f"{det_mod_name}-{part_stem}"
+                    part_stem = part_file.stem  # e.g. something_BX_0001_part_0001
+                    # extract BX and part info + make sure no dash is left as this is the separator
+                    bx_and_part = "".join(part_stem.partition(BX_PREFIX)[1:]).replace(
+                        "-", "_"
+                    )
+                    # put separator between BX and part
+                    bx_and_part = bx_and_part.replace("_part", "-part")
+                    out_name = (
+                        out_dir
+                        / f"{det_mod_name.replace('-', '_')}-{scenario_name.replace('-', '_')}-{bx_and_part}"
+                    )
 
                     if args.debug:
                         print(
