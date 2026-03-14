@@ -7,8 +7,8 @@ import pandas as pd
 from tabulate import tabulate
 
 from get_hits_per_layer import divide_hits
-from scale_hit_rate import scale_hits_dict
 from plot_hit_rates import plot_hit_rates
+from scale_hit_rate import scale_hits_dict
 
 json_data_folder_name = "json_data"
 
@@ -35,6 +35,11 @@ def parse_arguments():
         "--plot_all",
         action="store_true",
         help="If given, results are plotted for beamstrahlung and synchrotron radiation. Currently only coded for unit option per_bx_per_mm.",
+    )
+    parser.add_argument(
+        "--single_plot",
+        action="store_true",
+        help="If set, only a single summary plot is produced. Otherwise, multiple detailed plots are generated.",
     )
     return parser.parse_args()
 
@@ -94,7 +99,7 @@ def create_table():
                     }
                 )
     if args.plot_all and args.unit == "per_bx_per_mm":
-        plot_hit_rates(rows)
+        plot_hit_rates(rows, single_plot=args.single_plot)
     # Create a DataFrame
     df = pd.DataFrame(rows)
 

@@ -42,27 +42,27 @@ def parse_files(directory):
 
     detector_data = defaultdict(lambda: defaultdict(lambda: defaultdict(set)))
 
-    for folder in directory.iterdir():
-        if folder.is_dir() and folder.name in CHOICES_DETECTOR_MODELS:
-            for subfolder in folder.iterdir():
-                if not subfolder.is_dir():
-                    continue
-
-                bX_number = subfolder.name.split("_")[-1]
-
-                for file in subfolder.rglob(f"*{edm4hep_file_suffix}"):
-                    parts = file.stem.split("-")
-                    if len(parts) != 4:
-                        # Skip any files not matching the expected format
+    for detector_folder in directory.iterdir():
+        if detector_folder.is_dir() and detector_folder.name in CHOICES_DETECTOR_MODELS:
+            for scenario_folder in detector_folder.iterdir():
+                for bx_folder in scenario_folder.iterdir():
+                    if not bx_folder.is_dir():
                         continue
 
-                    detector_model = parts[0]
-                    scenario = parts[1]
-                    bX_number = parts[2]
-                    part = parts[3].split("_")[-1].split(".")[0]
+                    bX_number = bx_folder.name.split("_")[-1]
 
-                    # Add the bX_Number to the appropriate detector_model and scenario
-                    detector_data[detector_model][scenario][bX_number].add(part)
+                    for file in bx_folder.rglob(f"*{edm4hep_file_suffix}"):
+                        parts = file.stem.split("-")
+                        if len(parts) != 4:
+                            # Skip any files not matching the expected format
+                            continue
+
+                        detector_model, scenario, bX_number, part = parts
+                        bX_number = bX_number.split("_")[-1]
+                        part = part.split("_")[-1]
+
+                        # Add the bX_Number to the appropriate detector_model and scenario
+                        detector_data[detector_model][scenario][bX_number].add(part)
 
     return detector_data
 

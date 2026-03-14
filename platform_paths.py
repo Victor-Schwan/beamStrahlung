@@ -13,6 +13,7 @@ from sys import version, version_info
 from typing import Dict
 
 edm4hep_file_suffix = ".edm4hep.root"
+lcio_file_suffix = ".slcio"
 
 file_extensions = {
     "beamstrahlung": ".pairs",
@@ -225,31 +226,47 @@ def construct_beamstrahlung_paths() -> Dict[str, Dict[str, Dict[str, Path]]]:
                 else ""
             ),
         },
-        "FCC091": {
-            DESY_NAF_MACHINE_IDENTIFIER: (
-                desy_dust_beamstrahlung_base_path
-                / "tpc-ion_tpc-bspairs_input-allatip/FCC091_#N"
-                if desy_dust_beamstrahlung_base_path
-                else ""
-            ),
-        },
-        "FCC240": {
-            KEK_MACHINE_IDENTIFIER: Path(
-                "/home/ilc/jeans/guineaPig/fromAndrea/pairs100/allAtIP_ZH/FCC240_#N"
-            ),
-            DESY_NAF_MACHINE_IDENTIFIER: (
-                desy_dust_beamstrahlung_base_path
-                / "guineaPig_fromAndrea_pairs100_allAtIP-ZH/FCC240_#N"
-                if desy_dust_beamstrahlung_base_path
-                else ""
-            ),
-        },
-        "FCC_GHC_24.4_Z": {
+        #         "FCC091": {
+        #             DESY_NAF_MACHINE_IDENTIFIER: (
+        #                 desy_dust_beamstrahlung_base_path
+        #                 / "tpc-ion_tpc-bspairs_input-allatip/FCC091_#N"
+        #                 if desy_dust_beamstrahlung_base_path
+        #                 else ""
+        #             ),
+        #         },
+        #         "FCC240": {
+        #             KEK_MACHINE_IDENTIFIER: Path(
+        #                 "/home/ilc/jeans/guineaPig/fromAndrea/pairs100/allAtIP_ZH/FCC240_#N"
+        #             ),
+        #             DESY_NAF_MACHINE_IDENTIFIER: (
+        #                 desy_dust_beamstrahlung_base_path
+        #                 / "guineaPig_fromAndrea_pairs100_allAtIP-ZH/FCC240_#N"
+        #                 if desy_dust_beamstrahlung_base_path
+        #                 else ""
+        #             ),
+        #         },
+        "FCC_GHC_24_4_Z": {
             DESY_NAF_MACHINE_IDENTIFIER: Path(
                 get_path_from_env("dtDir")
                 / "backgrounds"
                 / "FCCee"
-                / "FCCee_GHC_v24.4_IPC_VTX0_Z"
+                / "FCCee_GHC_v24_4_IPC_VTX0_Z"
+            )
+        },
+        "FCC_GHC_24_4_tt": {
+            DESY_NAF_MACHINE_IDENTIFIER: Path(
+                get_path_from_env("dtDir")
+                / "backgrounds"
+                / "FCCee"
+                / "FCCee_GHC_v24_4_IPC_VTX0_tt"
+            )
+        },
+        "FCC_LCC_105_Z": {
+            DESY_NAF_MACHINE_IDENTIFIER: Path(
+                get_path_from_env("dtDir")
+                / "backgrounds"
+                / "FCCee"
+                / "FCCee_LCC_v105_IPC_Z"
             )
         },
     }

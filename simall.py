@@ -34,7 +34,7 @@ CHOICES_SCENARIOS = {
 }
 DEFAULT_SCENARIOS = {
     "synchrotron": ("182GeV_nzco_10urad",),
-    "beamstrahlung": ("FCC240",),
+    "beamstrahlung": ("FCC_LCC_105_Z",),
 }
 
 
@@ -195,16 +195,21 @@ def main():
                     out_dir.mkdir(parents=True, exist_ok=True)
 
                     # Output file base name (preserves part info)
-                    part_stem = part_file.stem  # e.g. something_BX_0001_part_0001
-                    # extract BX and part info + make sure no dash is left as this is the separator
-                    bx_and_part = "".join(part_stem.partition(BX_PREFIX)[1:]).replace(
-                        "-", "_"
-                    )
-                    # put separator between BX and part
-                    bx_and_part = bx_and_part.replace("_part", "-part")
+                    part_stem = part_file.stem  # e.g. something-BX_0001-part_0001
+                    input_f_name_parts = part_stem.split("-")
+                    assert len(input_f_name_parts) == 3, f"{part_stem}"
+
+                    # We want to prepend the detector model
+                    det_model_clean = det_mod_name.replace("-", "_")
+                    scenario_clean = scenario_name.replace("-", "_")
+
+                    if not input_f_name_parts[0] == scenario_clean:
+                        input_f_name_parts[0] = scenario_clean
+
+                    # Reuse the suffix-less stem from the input file
+                    # (This assumes the input stem already follows scenario-BX_####-part_####)
                     out_name = (
-                        out_dir
-                        / f"{det_mod_name.replace('-', '_')}-{scenario_name.replace('-', '_')}-{bx_and_part}"
+                        out_dir / f"{det_model_clean}-{'-'.join(input_f_name_parts)}"
                     )
 
                     if args.debug:

@@ -28,27 +28,36 @@ This module provides:
 
 from __future__ import annotations
 
+import argparse
 import re
 from pathlib import Path
-
 from tabulate import tabulate
 
-from platform_paths import edm4hep_file_suffix
+# Single Source of Truth Imports
+from platform_paths import edm4hep_file_suffix, lcio_file_suffix, file_extensions
 
 # === Configuration constants ===
-N_ZERO_PADDING_BX = 4
-N_ZERO_PADDING_PART = 4
+N_ZERO_PADDING_BX = 6
+N_ZERO_PADDING_PART = 6
 DEFAULT_MAX_DEBUG_BX = 2
 DEFAULT_MAX_DEBUG_PARTS = 2
 BX_PREFIX = "BX_"
 PART_PREFIX = "part_"
 
+# Map for CLI choices
+VALID_EXTENSIONS = {
+    "pairs": file_extensions.get("beamstrahlung", ".pairs"),
+    "hepevt": file_extensions.get("synchrotron", ".hepevt"),
+    "edm4hep": edm4hep_file_suffix,
+    "lcio": lcio_file_suffix,
+}
+
 
 # === Discovery functions ===
 def discover_bx_folders(scenario_folder: Path) -> list[Path]:
     """
-    Return a sorted list of BX subfolders in the given scenario folder.
-    If none are found, return [scenario_folder] assuming a single-BX layout.
+    Return a sorted list of BX subfolders (BX_####) in the scenario folder.
+    Fallback: returns [scenario_folder] if no BX subfolders are found.
     """
     bx_pattern = re.compile(rf"^{BX_PREFIX}\d{{{N_ZERO_PADDING_BX}}}$")
     bx_folders = sorted(
@@ -58,28 +67,22 @@ def discover_bx_folders(scenario_folder: Path) -> list[Path]:
             if p.is_dir() and bx_pattern.match(p.name)
         ]
     )
-    if not bx_folders:
-        # fallback: no subfolders, assume single BX
-        return [scenario_folder]
-    return bx_folders
+    return bx_folders if bx_folders else [scenario_folder]
 
 
 def discover_parts_in_bx(bx_folder: Path, suffix: str) -> list[Path]:
     """
     Return a sorted list of part files in the BX folder.
-    Matches filenames ending with '_BX_####_part_####<suffix>'.
+    Matches harmonized format: -BX_####-part_####<suffix>
     """
-    # Build regex to extract the part index
     part_pattern = re.compile(
         rf"-{BX_PREFIX}\d{{{N_ZERO_PADDING_BX}}}-{PART_PREFIX}(\d{{{N_ZERO_PADDING_PART}}}){re.escape(suffix)}$"
     )
 
-    parts = []
-    for f in bx_folder.iterdir():
-        if f.is_file() and part_pattern.search(f.name):
-            parts.append(f)
+    parts = [
+        f for f in bx_folder.iterdir() if f.is_file() and part_pattern.search(f.name)
+    ]
 
-    # Sort numerically by the part index extracted from filename
     def extract_index(path: Path) -> int:
         match = part_pattern.search(path.name)
         return int(match.group(1)) if match else 0
@@ -95,148 +98,94 @@ def collect_all_parts(
     max_debug_bx: int = DEFAULT_MAX_DEBUG_BX,
     max_debug_parts: int = DEFAULT_MAX_DEBUG_PARTS,
 ) -> dict[int, list[Path]]:
-    """
-    Discover all BX folders and their corresponding part files.
-    Returns a mapping {bx_index: [Path, ...]}.
-
-    If debug=True, limits to at most `max_debug_bx` BXs and `max_debug_parts` parts per BX.
-    """
+    """Mapping of {bx_index: [list of part Paths]}."""
     bx_folders = discover_bx_folders(scenario_folder)
-
     bx_to_parts: dict[int, list[Path]] = {}
-    bad_bx_folders = []
+
     for bx_index, bx_folder in enumerate(bx_folders, start=1):
         parts = discover_parts_in_bx(bx_folder, suffix)
         if not parts:
-            bad_bx_folders.append(str(bx_folder.relative_to(scenario_folder.parent)))
             continue
-
         if debug:
             parts = parts[:max_debug_parts]
-
         bx_to_parts[bx_index] = parts
 
-    if bad_bx_folders:
-        print(f"Warning: no part files found in {bad_bx_folders}")
-
     if debug and len(bx_to_parts) > max_debug_bx:
-        bx_to_parts = {k: v for k, v in list(bx_to_parts.items())[:max_debug_bx]}
+        bx_to_parts = dict(list(bx_to_parts.items())[:max_debug_bx])
 
     return bx_to_parts
 
 
-# === Creation and validation ===
-def create_bx_subfolders(base_folder: Path, n_bx: int) -> list[Path]:
-    """
-    Create BX subfolders BX_0001 ... BX_NNNN in base_folder.
-    Returns the created Path list.
-    """
-    created = []
-    for i in range(1, n_bx + 1):
-        bx_folder = base_folder / f"{BX_PREFIX}{i:0{N_ZERO_PADDING_BX}d}"
-        bx_folder.mkdir(parents=True, exist_ok=True)
-        created.append(bx_folder)
-    return created
-
-
 def validate_scenario_structure(scenario_folder: Path, suffix: str) -> bool:
-    """
-    Check that the scenario folder follows the BX/part structure rules.
-    Print a tabulated summary of BX folders and part counts.
-    Returns True if structure looks valid, False otherwise.
-    """
+    """Prints a tabulated summary of the scenario structure."""
     if not scenario_folder.exists():
-        print(f"Error: folder does not exist: {scenario_folder}")
+        print(f"Error: Path does not exist: {scenario_folder}")
         return False
 
     bx_folders = discover_bx_folders(scenario_folder)
-    if not bx_folders:
-        print(f"No BX folders found in {scenario_folder}")
-        return False
-
     rows = []
     valid = True
+
     for bx_folder in bx_folders:
         parts = discover_parts_in_bx(bx_folder, suffix)
         n_parts = len(parts)
-        example = parts[0].name if parts else "(none)"
+        example = parts[0].name if parts else "(NONE FOUND)"
         rows.append([bx_folder.name, n_parts, example])
         if n_parts == 0:
             valid = False
 
-    # if more than 24 entries, print only first, middle and last 7 rows
-    l_rows = len(rows)
-    if l_rows > 24:
-        blind_row = [
-            [
-                "...",
-            ]
-            * 3
-        ]
-        rows = (
-            rows[0:7]
-            + blind_row
-            + rows[l_rows // 2 - 3 : l_rows // 2 + 4]
-            + blind_row
+    # Truncate long tables for readability
+    display_rows = rows
+    if len(rows) > 24:
+        display_rows = (
+            rows[:7]
+            + [["...", "...", "..."]]
+            + rows[len(rows) // 2 - 3 : len(rows) // 2 + 4]
+            + [["...", "...", "..."]]
             + rows[-7:]
         )
 
-    table = tabulate(
-        rows, headers=["BX folder", "#parts", "Example file"], tablefmt="grid"
+    print(f"\nScenario: {scenario_folder}")
+    print(
+        tabulate(
+            display_rows,
+            headers=["BX Folder", "# Parts", "Example File"],
+            tablefmt="grid",
+        )
     )
-    print(f"\nScenario folder: {scenario_folder}")
-    print(table)
 
     return valid
 
 
-########################################################################
-# interactive part, if this script is directly called
-########################################################################
-
-
-def check_substructure(user_input):
-    user_path = Path(user_input)
-
-    if not user_path.is_dir():
-        print(f"The path {user_path} does not exist or is not a directory.")
-        return False
-
-    if validate_scenario_structure(user_path, edm4hep_file_suffix):
-        print("The given path seems to fulfil the structure.")
-    else:
-        print("The given path does not stick to the standard structure!")
-
-
-def interactive_shell():
-    # shell is ON PURPOSE!
-    from IPython import embed
-
-    embed()
-
-
 def main():
-    while True:
-        # Ask user for a path
-        user_input = input(
-            "Enter a path to check (or 'exit' to quit, 'shell' for interactive shell): "
-        )
+    parser = argparse.ArgumentParser(
+        description="Validate standardized HEP data structures."
+    )
+    parser.add_argument(
+        "path", type=Path, help="Path to the scenario folder to validate"
+    )
+    parser.add_argument(
+        "-t",
+        "--type",
+        choices=VALID_EXTENSIONS.keys(),
+        default="edm4hep",
+        help="Type of files to look for (suffix mapping)",
+    )
+    parser.add_argument(
+        "--debug", action="store_true", help="Test discovery logic with debug limits"
+    )
 
-        if user_input.lower() == "exit":
-            print("Exiting script.")
-            break
-        elif user_input.lower() == "shell":
-            interactive_shell()
-            continue
+    args = parser.parse_args()
+    suffix = VALID_EXTENSIONS[args.type]
 
-        # Check if the path exists and if it meets the required structure
-        if check_substructure(user_input):
-            action = input("Do you want to check another path? (yes/no): ").lower()
-            if action != "yes":
-                print("Ending script.")
-                break
-        else:
-            print("Please try again with a valid path.")
+    print(f"Validating for file type: {args.type} (suffix: {suffix})")
+
+    is_valid = validate_scenario_structure(args.path, suffix)
+
+    if is_valid:
+        print("\nSUCCESS: Structure matches the standard convention.")
+    else:
+        print("\nFAILURE: Missing files or incorrect naming in one or more BX folders.")
 
 
 if __name__ == "__main__":
